@@ -3,11 +3,10 @@ import { NextResponse } from 'next/server'
 export async function POST(request) {
   const { prompt } = await request.json()
 
-  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID
-  const apiToken = process.env.CLOUDFLARE_API_TOKEN
+  const apiKey = process.env.GROQ_API_KEY
 
-  if (!accountId || !apiToken) {
-    return NextResponse.json({ error: 'Cloudflare not configured. Add CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN in Vercel settings.' }, { status: 500 })
+  if (!apiKey) {
+    return NextResponse.json({ error: 'API not configured. Add GROQ_API_KEY in Vercel settings. Get free key at console.groq.com' }, { status: 500 })
   }
 
   const systemPrompt = `You are an expert web developer. Generate a complete, professional, production-ready single-page HTML website.
@@ -34,32 +33,31 @@ Rules:
 - Make it look like a real business website`
 
   try {
-    const res = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/@cf/meta/llama-3.1-8b-instant`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          messages: [{ role: 'user', content: systemPrompt }],
-          max_tokens: 4096
-        })
-      }
-    )
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        messages: [{ role: 'user', content: systemPrompt }],
+        temperature: 0.7,
+        max_tokens: 8192
+      })
+    })
 
     const data = await res.json()
 
-    if (data.errors) {
-      return NextResponse.json({ error: `Error: ${JSON.stringify(data.errors)}` }, { status: 500 })
+    if (data.error) {
+      return NextResponse.json({ error: `Error: ${data.error.message}` }, { status: 500 })
     }
 
-    if (!data.result?.response) {
-      return NextResponse.json({ error: 'No response from AI. Please try again.' }, { status: 500 })
+    if (!data.choices || !data.choices[0]) {
+      return NextResponse.json({ error: 'No response. Please try again.' }, { status: 500 })
     }
 
-    let code = data.result.response
+    let code = data.choices[0].message.content
     
     code = code.replace(/```html\n?/g, '')
     code = code.replace(/```\n?/g, '')
@@ -72,6 +70,6 @@ Rules:
 
     return NextResponse.json({ code, success: true })
   } catch (err) {
-    return NextResponse.json({ error: 'Connection failed. Check your Cloudflare credentials.' }, { status: 500 })
+    return NextResponse.json({ error: 'Connection failed. Check your API key.' }, { status: 500 })
   }
 }
