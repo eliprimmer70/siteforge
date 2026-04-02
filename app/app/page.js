@@ -19,6 +19,7 @@ export default function AppPage() {
   useEffect(() => {
     const storedRemaining = localStorage.getItem('siteforge_remaining')
     const storedUser = localStorage.getItem('siteforge_user')
+    const storedCurrent = localStorage.getItem('siteforge_current')
     
     if (!storedUser) {
       window.location.href = '/'
@@ -29,6 +30,19 @@ export default function AppPage() {
       const r = parseInt(storedRemaining)
       setRemaining(r)
       if (r <= 0) setLimitReached(true)
+    }
+    
+    if (storedCurrent) {
+      try {
+        const project = JSON.parse(storedCurrent)
+        if (project.code) {
+          setCurrentCode(project.code)
+          setCurrentName(project.name || 'Untitled')
+          const userMsg = { role: 'user', text: project.prompt || project.name }
+          setMessages([userMsg, { role: 'assistant', text: 'Website loaded from your projects.' }])
+        }
+        localStorage.removeItem('siteforge_current')
+      } catch (e) {}
     }
   }, [])
 
