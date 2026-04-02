@@ -5,309 +5,325 @@ import { useState, useEffect } from 'react'
 export default function Landing() {
   const [email, setEmail] = useState('')
   const [showAuth, setShowAuth] = useState(false)
-  const [heroVisible, setHeroVisible] = useState(false)
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   
   useEffect(() => {
-    setTimeout(() => setHeroVisible(true), 100)
+    const handleMouse = (e) => {
+      setMousePos({ x: e.clientX, y: e.clientY })
+    }
+    window.addEventListener('mousemove', handleMouse)
+    return () => window.removeEventListener('mousemove', handleMouse)
   }, [])
-
-  const handleGetStarted = () => {
-    setShowAuth(true)
-  }
 
   const handleAuth = () => {
     if (!email || !email.includes('@')) {
-      alert('Please enter a valid email')
       return
     }
-    
-    const userData = {
-      email: email,
-      remainingGenerations: 10
-    }
-    
+    const userData = { email, remainingGenerations: 10 }
     localStorage.setItem('siteforge_user', JSON.stringify(userData))
     localStorage.setItem('siteforge_remaining', '10')
-    
     window.location.href = '/app'
   }
 
   return (
-    <div style={{ background: '#fff', color: '#1d1d1f', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Helvetica, Arial, sans-serif', overflowX: 'hidden' }}>
+    <div style={{ background: '#030305', color: '#fff', fontFamily: 'Inter, -apple-system, sans-serif', overflowX: 'hidden', minHeight: '100vh' }}>
+      <div style={{ 
+        position: 'fixed', 
+        top: 0, left: 0, right: 0, bottom: 0, 
+        background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(99, 102, 241, 0.08), transparent 40%)`,
+        pointerEvents: 'none', 
+        zIndex: 0 
+      }} />
+
+      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '1rem 2rem', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '0.875rem' }}>S</div>
+            <span style={{ fontWeight: '700', fontSize: '1.125rem', letterSpacing: '-0.02em' }}>SiteForge</span>
+          </div>
+          <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+            <a href="#features" style={{ color: '#9ca3af', textDecoration: 'none', fontSize: '0.875rem', transition: 'color 0.2s' }}>Features</a>
+            <a href="#pricing" style={{ color: '#9ca3af', textDecoration: 'none', fontSize: '0.875rem', transition: 'color 0.2s' }}>Pricing</a>
+            <button onClick={() => setShowAuth(true)} style={{ 
+              background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', 
+              color: '#fff', 
+              padding: '0.625rem 1.25rem', 
+              borderRadius: '8px', 
+              border: 'none', 
+              fontSize: '0.875rem', 
+              fontWeight: '600', 
+              cursor: 'pointer'
+            }}>
+              Get Started
+            </button>
+          </div>
+        </div>
+      </nav>
+
       {showAuth && (
         <div style={{ 
-          position: 'fixed', 
-          inset: 0, 
-          background: 'rgba(0,0,0,0.5)', 
-          backdropFilter: 'blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)',
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          zIndex: 1000
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', 
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 
         }}>
           <div style={{ 
-            background: '#fff', 
-            borderRadius: '20px', 
-            padding: '2.5rem', 
-            width: '100%', 
-            maxWidth: '360px',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
-            animation: 'fadeIn 0.3s ease'
+            background: '#0f0f12', borderRadius: '16px', padding: '2rem', width: '100%', maxWidth: '400px',
+            border: '1px solid rgba(255,255,255,0.1)'
           }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.5rem', textAlign: 'center', letterSpacing: '-0.02em' }}>
-              Get started free
-            </h2>
-            <p style={{ fontSize: '0.875rem', color: '#86868b', textAlign: 'center', marginBottom: '1.5rem' }}>
-              10 free generations, no credit card
-            </p>
-            
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.5rem' }}>Start building for free</h2>
+            <p style={{ color: '#9ca3af', fontSize: '0.875rem', marginBottom: '1.5rem' }}>10 free generations included</p>
             <input
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="Enter your email"
               style={{
-                width: '100%',
-                padding: '1rem',
-                fontSize: '1rem',
-                borderRadius: '12px',
-                border: '1px solid #d2d2d7',
-                background: '#f5f5f7',
-                color: '#1d1d1f',
-                boxSizing: 'border-box',
-                outline: 'none',
-                marginBottom: '1rem'
+                width: '100%', padding: '0.875rem 1rem', borderRadius: '10px',
+                border: '1px solid rgba(255,255,255,0.1)', background: '#000', color: '#fff',
+                fontSize: '1rem', boxSizing: 'border-box', outline: 'none', marginBottom: '1rem'
               }}
               onKeyDown={e => e.key === 'Enter' && handleAuth()}
             />
-            
-            <button
-              onClick={handleAuth}
-              style={{
-                width: '100%',
-                padding: '1rem',
-                fontSize: '1rem',
-                borderRadius: '12px',
-                border: 'none',
-                background: '#0071e3',
-                color: '#fff',
-                fontWeight: '500',
-                cursor: 'pointer'
-              }}
-            >
-              Continue
+            <button onClick={handleAuth} style={{
+              width: '100%', padding: '0.875rem', borderRadius: '10px',
+              background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', border: 'none', color: '#fff',
+              fontSize: '1rem', fontWeight: '600', cursor: 'pointer'
+            }}>
+              Continue →
             </button>
-            
-            <button
-              onClick={() => setShowAuth(false)}
-              style={{
-                width: '100%',
-                marginTop: '0.75rem',
-                padding: '0.75rem',
-                fontSize: '0.9375rem',
-                borderRadius: '12px',
-                border: 'none',
-                background: 'transparent',
-                color: '#86868b',
-                cursor: 'pointer'
-              }}
-            >
+            <button onClick={() => setShowAuth(false)} style={{
+              width: '100%', marginTop: '0.75rem', padding: '0.75rem', borderRadius: '10px',
+              background: 'transparent', border: 'none', color: '#9ca3af', fontSize: '0.875rem', cursor: 'pointer'
+            }}>
               Cancel
             </button>
           </div>
         </div>
       )}
 
-      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 2rem', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid #d2d2d7' }}>
-        <div style={{ maxWidth: '980px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '52px' }}>
-          <div style={{ fontWeight: '600', fontSize: '1.125rem', letterSpacing: '-0.01em' }}>SiteForge</div>
-          <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
-            <a href="#features" style={{ color: '#1d1d1f', textDecoration: 'none', fontSize: '0.875rem', opacity: 0.8 }}>Features</a>
-            <a href="#how" style={{ color: '#1d1d1f', textDecoration: 'none', fontSize: '0.875rem', opacity: 0.8 }}>How it works</a>
-            <a href="#community" style={{ color: '#1d1d1f', textDecoration: 'none', fontSize: '0.875rem', opacity: 0.8 }}>Community</a>
-            <button 
-              onClick={handleGetStarted}
-              style={{ color: '#fff', padding: '0.5rem 1.25rem', borderRadius: '980px', fontSize: '0.875rem', fontWeight: '500', background: '#0071e3', border: 'none', cursor: 'pointer' }}
-            >
-              Try free
+      <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '8rem 2rem 4rem', position: 'relative', zIndex: 1 }}>
+        <div style={{ maxWidth: '900px', textAlign: 'center' }}>
+          <div style={{ 
+            display: 'inline-flex', alignItems: 'center', gap: '0.5rem', 
+            background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.3)',
+            borderRadius: '20px', padding: '0.375rem 1rem', marginBottom: '2rem'
+          }}>
+            <span style={{ fontSize: '0.75rem', color: '#a5b4fc' }}>✨ Now with AI-powered generation</span>
+          </div>
+          
+          <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 4.5rem)', fontWeight: '800', lineHeight: 1.1, marginBottom: '1.5rem', letterSpacing: '-0.03em', background: 'linear-gradient(180deg, #fff 0%, #a5b4fc 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            Build websites<br />at the speed of thought.
+          </h1>
+          
+          <p style={{ fontSize: '1.25rem', color: '#9ca3af', lineHeight: 1.6, marginBottom: '2.5rem', maxWidth: '600px', margin: '0 auto 2.5rem' }}>
+            Describe what you want. Watch it come to life. No code, no design skills needed.
+          </p>
+
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button onClick={() => setShowAuth(true)} style={{
+              padding: '1rem 2rem', fontSize: '1.125rem', borderRadius: '12px',
+              background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', border: 'none', color: '#fff',
+              fontWeight: '700', cursor: 'pointer', boxShadow: '0 0 40px rgba(99, 102, 241, 0.4)'
+            }}>
+              Start building free →
+            </button>
+            <button style={{
+              padding: '1rem 2rem', fontSize: '1.125rem', borderRadius: '12px',
+              background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: '#fff',
+              fontWeight: '600', cursor: 'pointer'
+            }}>
+              Watch demo
             </button>
           </div>
-        </div>
-      </nav>
 
-      <section style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '7rem 2rem 5rem', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, #f5f5f7 0%, #fff 50%)', pointerEvents: 'none' }} />
-        <div style={{ maxWidth: '680px', textAlign: 'center', opacity: heroVisible ? 1 : 0, transform: heroVisible ? 'translateY(0)' : 'translateY(30px)', transition: 'all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1)', position: 'relative' }}>
-          <p style={{ fontSize: '1rem', color: '#86868b', marginBottom: '0.75rem' }}>Introducing SiteForge</p>
-          <h1 style={{ fontSize: 'clamp(3rem, 10vw, 5rem)', fontWeight: '700', lineHeight: 1.05, marginBottom: '1.5rem', letterSpacing: '-0.03em' }}>
-            Websites built<br />
-            <span style={{ color: '#0071e3' }}>in seconds.</span>
-          </h1>
-          <p style={{ fontSize: '1.5rem', color: '#86868b', lineHeight: 1.4, marginBottom: '2.5rem', fontWeight: '400' }}>
-            Describe what you want. Watch it appear.<br />
-            No code. No design skills. No compromise.
-          </p>
-          <button
-            onClick={handleGetStarted}
-            style={{
-              padding: '1.125rem 2rem',
-              fontSize: '1.125rem',
-              borderRadius: '980px',
-              border: 'none',
-              background: '#0071e3',
-              color: '#fff',
-              fontWeight: '500',
-              cursor: 'pointer',
-              boxShadow: '0 4px 20px rgba(0,113,227,0.3)'
-            }}
-          >
-            Start building free →
-          </button>
-          <p style={{ fontSize: '0.75rem', color: '#86868b', marginTop: '1rem' }}>10 free generations. No credit card required.</p>
+          <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '1rem' }}>Free to start. No credit card required.</p>
+        </div>
+
+        <div style={{ marginTop: '4rem', width: '100%', maxWidth: '1000px' }}>
+          <div style={{ 
+            background: 'linear-gradient(180deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.05))',
+            borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', padding: '2rem',
+            backdropFilter: 'blur(10px)'
+          }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem', alignItems: 'center' }}>
+              <div>
+                <div style={{ fontSize: '0.75rem', color: '#a5b4fc', marginBottom: '0.5rem' }}>PROMPT</div>
+                <p style={{ fontSize: '0.9rem', color: '#e5e7eb', lineHeight: 1.6 }}>
+                  "A modern landing page for a SaaS startup with pricing, features, and testimonials"
+                </p>
+              </div>
+              <div style={{ background: '#000', borderRadius: '12px', padding: '1.5rem', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#ef4444' }}></div>
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#eab308' }}></div>
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#22c55e' }}></div>
+                </div>
+                <div style={{ fontSize: '0.8rem', color: '#9ca3af', fontFamily: 'monospace' }}>
+                  <p>✓ Landing page created</p>
+                  <p>✓ Responsive design</p>
+                  <p>✓ SEO optimized</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section style={{ padding: '5rem 2rem', background: '#f5f5f7' }}>
-        <div style={{ maxWidth: '980px', margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: '600', marginBottom: '1rem', letterSpacing: '-0.02em' }}>
-            Built for speed.
-          </h2>
-          <p style={{ fontSize: '1.125rem', color: '#86868b', maxWidth: '500px', margin: '0 auto 3rem' }}>
-            From idea to launch in seconds, not hours.
-          </p>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+      <section id="features" style={{ padding: '6rem 2rem', position: 'relative', zIndex: 1 }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+            <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: '800', letterSpacing: '-0.02em', marginBottom: '1rem' }}>
+              Everything you need to ship faster
+            </h2>
+            <p style={{ fontSize: '1.125rem', color: '#9ca3af', maxWidth: '500px', margin: '0 auto' }}>
+              From idea to production in seconds
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
             {[
-              { title: 'Instant generation', desc: 'From idea to working website in under 30 seconds. No queues, no waiting.' },
-              { title: 'Pixel perfect design', desc: 'Every site is responsive, accessible, and optimized for all devices.' },
-              { title: 'Iterate freely', desc: 'Make changes with natural language. Keep refining until it\'s perfect.' },
-              { title: 'Download & own', desc: 'Get clean HTML, CSS, and JS. Host anywhere, customize everything.' },
+              { icon: '⚡', title: 'Lightning Fast', desc: 'Generate complete websites in under 30 seconds. No more hours of coding.' },
+              { icon: '🎨', title: 'Beautiful Design', desc: 'Every site is crafted with modern design principles. No ugly templates.' },
+              { icon: '🔄', title: 'Iterate Instantly', desc: 'Make changes with natural language. Describe, refine, repeat.' },
+              { icon: '📥', title: 'Own Your Code', desc: 'Download clean HTML/CSS/JS. Host anywhere you want.' },
+              { icon: '🔒', title: 'Private & Secure', desc: 'Your ideas stay yours. We never train on your data.' },
+              { icon: '🌐', title: 'Publish Anywhere', desc: 'Get production-ready code. Deploy to any hosting platform.' },
             ].map((feature, i) => (
-              <div key={i} style={{ background: '#fff', borderRadius: '20px', padding: '2rem', textAlign: 'left', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem', letterSpacing: '-0.01em' }}>{feature.title}</h3>
-                <p style={{ fontSize: '1rem', color: '#86868b', lineHeight: 1.5 }}>{feature.desc}</p>
+              <div key={i} style={{
+                background: 'rgba(255,255,255,0.02)', borderRadius: '16px', padding: '1.75rem',
+                border: '1px solid rgba(255,255,255,0.05)', transition: 'all 0.3s'
+              }}>
+                <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>{feature.icon}</div>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: '700', marginBottom: '0.5rem' }}>{feature.title}</h3>
+                <p style={{ fontSize: '0.9375rem', color: '#9ca3af', lineHeight: 1.6 }}>{feature.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="how" style={{ padding: '6rem 2rem', background: '#fff' }}>
-        <div style={{ maxWidth: '980px', margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center' }}>
-            <div>
-              <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '600', marginBottom: '2rem', lineHeight: 1.15, letterSpacing: '-0.02em' }}>
-                Three steps to launch.
-              </h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                {[
-                  { num: '01', title: 'Describe your vision', desc: 'Tell us what you want in plain English. A landing page, portfolio, dashboard—anything.' },
-                  { num: '02', title: 'AI builds it', desc: 'Our AI understands context, design principles, and best practices to ship production-ready code.' },
-                  { num: '03', title: 'Download & launch', desc: 'Get the complete source code. Host anywhere, customize everything, ship when ready.' }
-                ].map((step, i) => (
-                  <div key={i} style={{ display: 'flex', gap: '1.25rem' }}>
-                    <span style={{ fontSize: '0.875rem', color: '#0071e3', fontWeight: '600', marginTop: '0.125rem', minWidth: '2rem' }}>{step.num}</span>
-                    <div>
-                      <h4 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.25rem' }}>{step.title}</h4>
-                      <p style={{ fontSize: '1rem', color: '#86868b', lineHeight: 1.5 }}>{step.desc}</p>
-                    </div>
-                  </div>
+      <section id="pricing" style={{ padding: '6rem 2rem', position: 'relative', zIndex: 1 }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+            <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: '800', letterSpacing: '-0.02em', marginBottom: '1rem' }}>
+              Simple, transparent pricing
+            </h2>
+            <p style={{ fontSize: '1.125rem', color: '#9ca3af' }}>
+              Start free. Upgrade when you need more.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+            <div style={{
+              background: 'rgba(255,255,255,0.03)', borderRadius: '20px', padding: '2rem',
+              border: '1px solid rgba(255,255,255,0.1)'
+            }}>
+              <div style={{ fontSize: '1rem', color: '#9ca3af', marginBottom: '0.5rem' }}>Free</div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem', marginBottom: '1.5rem' }}>
+                <span style={{ fontSize: '3rem', fontWeight: '800' }}>$0</span>
+                <span style={{ color: '#6b7280' }}>/mo</span>
+              </div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem 0' }}>
+                {['10 generations/month', 'HTML download', 'Community support'].map(f => (
+                  <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', color: '#d1d5db', fontSize: '0.9375rem' }}>
+                    <span style={{ color: '#22c55e' }}>✓</span> {f}
+                  </li>
                 ))}
-              </div>
+              </ul>
+              <button onClick={() => setShowAuth(true)} style={{
+                width: '100%', padding: '0.875rem', borderRadius: '10px',
+                background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
+                color: '#fff', fontWeight: '600', cursor: 'pointer', fontSize: '0.9375rem'
+              }}>
+                Get started
+              </button>
             </div>
-            <div style={{ background: '#f5f5f7', borderRadius: '20px', padding: '1.5rem' }}>
-              <div style={{ background: '#fff', borderRadius: '16px', padding: '1.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
-                <div style={{ fontFamily: 'SF Mono, Monaco, Menlo, monospace', fontSize: '0.875rem', color: '#86868b', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-                  <p style={{ marginBottom: '0.5rem' }}>$ "Landing page for</p>
-                  <p style={{ marginBottom: '0.5rem' }}>a coffee shop"</p>
-                  <p style={{ color: '#0071e3' }}>→ Generating...</p>
-                </div>
-                <div style={{ background: '#fafafa', borderRadius: '12px', padding: '1.25rem' }}>
-                  <h5 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.25rem' }}>Brew & Co.</h5>
-                  <p style={{ fontSize: '0.875rem', color: '#86868b', marginBottom: '0.75rem' }}>Artisan coffee, roasted daily</p>
-                  <div style={{ paddingTop: '0.75rem', borderTop: '1px solid #e5e5e5', display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#86868b' }}>
-                    <span>Menu</span>
-                    <span>About</span>
-                    <span>Contact</span>
-                  </div>
-                </div>
+
+            <div style={{
+              background: 'linear-gradient(180deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.1))',
+              borderRadius: '20px', padding: '2rem',
+              border: '1px solid rgba(99, 102, 241, 0.5)',
+              position: 'relative'
+            }}>
+              <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', padding: '0.25rem 1rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '600' }}>
+                Popular
               </div>
+              <div style={{ fontSize: '1rem', color: '#a5b4fc', marginBottom: '0.5rem' }}>Pro</div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem', marginBottom: '1.5rem' }}>
+                <span style={{ fontSize: '3rem', fontWeight: '800' }}>$9</span>
+                <span style={{ color: '#6b7280' }}>/mo</span>
+              </div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem 0' }}>
+                {['100 generations/month', 'Priority support', 'Custom domains', 'No watermark'].map(f => (
+                  <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', color: '#d1d5db', fontSize: '0.9375rem' }}>
+                    <span style={{ color: '#22c55e' }}>✓</span> {f}
+                  </li>
+                ))}
+              </ul>
+              <button style={{
+                width: '100%', padding: '0.875rem', borderRadius: '10px',
+                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', border: 'none',
+                color: '#fff', fontWeight: '600', cursor: 'pointer', fontSize: '0.9375rem'
+              }}>
+                Coming soon
+              </button>
+            </div>
+
+            <div style={{
+              background: 'rgba(255,255,255,0.03)', borderRadius: '20px', padding: '2rem',
+              border: '1px solid rgba(255,255,255,0.1)'
+            }}>
+              <div style={{ fontSize: '1rem', color: '#9ca3af', marginBottom: '0.5rem' }}>Unlimited</div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem', marginBottom: '1.5rem' }}>
+                <span style={{ fontSize: '3rem', fontWeight: '800' }}>$29</span>
+                <span style={{ color: '#6b7280' }}>/mo</span>
+              </div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem 0' }}>
+                {['Unlimited generations', '24/7 support', 'API access', 'White label'].map(f => (
+                  <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', color: '#d1d5db', fontSize: '0.9375rem' }}>
+                    <span style={{ color: '#22c55e' }}>✓</span> {f}
+                  </li>
+                ))}
+              </ul>
+              <button style={{
+                width: '100%', padding: '0.875rem', borderRadius: '10px',
+                background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
+                color: '#fff', fontWeight: '600', cursor: 'pointer', fontSize: '0.9375rem'
+              }}>
+                Coming soon
+              </button>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="community" style={{ padding: '6rem 2rem', background: '#f5f5f7' }}>
-        <div style={{ maxWidth: '980px', margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: '600', marginBottom: '1rem', letterSpacing: '-0.02em' }}>
-            Community Showcase
-          </h2>
-          <p style={{ fontSize: '1.125rem', color: '#86868b', marginBottom: '3rem' }}>
-            See what others have built with SiteForge
-          </p>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
-            {[
-              { name: 'Luxe Interior', desc: 'Interior design portfolio', author: 'Sarah M.' },
-              { name: 'FitLife Gym', desc: 'Fitness center landing page', author: 'Mike R.' },
-              { name: 'Bloom Studio', desc: 'Photography portfolio', author: 'Emma L.' },
-            ].map((project, i) => (
-              <div key={i} style={{ background: '#fff', borderRadius: '16px', padding: '1.5rem', textAlign: 'left', boxShadow: '0 2px 12px rgba(0,0,0,0.04)', cursor: 'pointer' }}>
-                <div style={{ height: '160px', background: 'linear-gradient(135deg, #f5f5f7, #e5e5e5)', borderRadius: '12px', marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#86868b' }}>
-                  Preview
-                </div>
-                <h4 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.25rem' }}>{project.name}</h4>
-                <p style={{ fontSize: '0.875rem', color: '#86868b', marginBottom: '0.5rem' }}>{project.desc}</p>
-                <p style={{ fontSize: '0.75rem', color: '#86868b' }}>by {project.author}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section style={{ padding: '7rem 2rem', background: '#fff' }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: '600', marginBottom: '1rem', letterSpacing: '-0.02em' }}>
+      <section style={{ padding: '6rem 2rem', position: 'relative', zIndex: 1 }}>
+        <div style={{ maxWidth: '700px', margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: '800', letterSpacing: '-0.02em', marginBottom: '1rem' }}>
             Ready to build something great?
           </h2>
-          <p style={{ fontSize: '1.125rem', color: '#86868b', marginBottom: '2.5rem' }}>
-            Join thousands of creators who ship faster with SiteForge.
+          <p style={{ fontSize: '1.125rem', color: '#9ca3af', marginBottom: '2.5rem' }}>
+            Join thousands of creators shipping faster with SiteForge.
           </p>
-          <button 
-            onClick={handleGetStarted}
-            style={{
-              padding: '1rem 2.5rem',
-              fontSize: '1.125rem',
-              borderRadius: '980px',
-              border: 'none',
-              background: '#0071e3',
-              color: '#fff',
-              fontWeight: '500',
-              cursor: 'pointer',
-              boxShadow: '0 4px 20px rgba(0,113,227,0.3)'
-            }}
-          >
-            Start for free →
+          <button onClick={() => setShowAuth(true)} style={{
+            padding: '1.125rem 2.5rem', fontSize: '1.25rem', borderRadius: '14px',
+            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', border: 'none', color: '#fff',
+            fontWeight: '700', cursor: 'pointer', boxShadow: '0 0 60px rgba(99, 102, 241, 0.4)'
+          }}>
+            Start building free →
           </button>
-          <p style={{ fontSize: '0.75rem', color: '#86868b', marginTop: '1rem' }}>No credit card. 10 generations included.</p>
+          <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '1rem' }}>Free to start. No credit card required.</p>
         </div>
       </section>
 
-      <footer style={{ padding: '2rem', background: '#f5f5f7', borderTop: '1px solid #d2d2d7' }}>
-        <div style={{ maxWidth: '980px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <div style={{ fontWeight: '600', fontSize: '0.875rem' }}>SiteForge</div>
-          <p style={{ fontSize: '0.75rem', color: '#86868b' }}>© 2024 SiteForge. All rights reserved.</p>
+      <footer style={{ padding: '3rem 2rem', borderTop: '1px solid rgba(255,255,255,0.05)', position: 'relative', zIndex: 1 }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ width: '24px', height: '24px', borderRadius: '8px', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '0.75rem' }}>S</div>
+            <span style={{ fontWeight: '600' }}>SiteForge</span>
+          </div>
+          <p style={{ fontSize: '0.75rem', color: '#6b7280' }}>© 2024 SiteForge. All rights reserved.</p>
         </div>
       </footer>
-
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        html { scroll-behavior: smooth; }
-      `}</style>
     </div>
   )
 }
