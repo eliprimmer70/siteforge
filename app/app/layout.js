@@ -42,7 +42,7 @@ export default function AppLayout({ children }) {
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: '24px', height: '24px', border: '2px solid #333', borderTop: '2px solid '#0071e3'', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <div style={{ width: '24px', height: '24px', border: '2px solid #333', borderTop: '2px solid #0071e3', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
       </div>
     )
   }
