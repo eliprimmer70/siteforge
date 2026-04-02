@@ -11,35 +11,20 @@ export default function AppPage() {
   const [view, setView] = useState('preview')
   const [currentCode, setCurrentCode] = useState('')
   const [history, setHistory] = useState([])
-  const [user, setUser] = useState(null)
-  const [remainingGenerations, setRemainingGenerations] = useState(FREE_GENERATIONS)
+  const [remaining, setRemaining] = useState(FREE_GENERATIONS)
   const [limitReached, setLimitReached] = useState(false)
-  const messagesEndRef = useState(null)
 
   useEffect(() => {
-    checkUser()
+    const storedRemaining = localStorage.getItem('siteforge_remaining')
+    if (storedRemaining) {
+      const r = parseInt(storedRemaining)
+      setRemaining(r)
+      if (r <= 0) setLimitReached(true)
+    }
   }, [])
 
-  const checkUser = () => {
-    const storedUser = localStorage.getItem('siteforge_user')
-    const storedRemaining = localStorage.getItem('siteforge_remaining')
-    
-    if (storedUser) {
-      const userData = JSON.parse(storedUser)
-      setUser(userData)
-      const remaining = storedRemaining ? parseInt(storedRemaining) : (userData.remainingGenerations || FREE_GENERATIONS)
-      setRemainingGenerations(remaining)
-      if (remaining <= 0) setLimitReached(true)
-    }
-  }
-
   const generateWebsite = async () => {
-    if (!user) {
-      window.location.href = '/'
-      return
-    }
-    
-    if (limitReached || remainingGenerations <= 0) {
+    if (limitReached || remaining <= 0) {
       setLimitReached(true)
       return
     }
@@ -64,11 +49,8 @@ export default function AppPage() {
       
       const data = await res.json()
       
-      if (data.requiresAuth) {
-        setMessages(prev => [...prev, { role: 'assistant', text: 'Please sign in to continue' }])
-        localStorage.removeItem('siteforge_user')
-        localStorage.removeItem('siteforge_remaining')
-        setUser(null)
+      if (data.error || data.requiresAuth) {
+        window.location.href = '/'
         return
       }
       
@@ -85,8 +67,8 @@ export default function AppPage() {
         setCurrentCode(data.code)
         setHistory(prev => [...prev, { role: 'user', text: currentPrompt }, { role: 'assistant', text: data.code }])
         
-        const newRemaining = remainingGenerations - 1
-        setRemainingGenerations(newRemaining)
+        const newRemaining = remaining - 1
+        setRemaining(newRemaining)
         localStorage.setItem('siteforge_remaining', newRemaining.toString())
         
         if (newRemaining <= 0) setLimitReached(true)
@@ -118,50 +100,48 @@ export default function AppPage() {
 
   return (
     <div style={{ display: 'flex', height: '100vh', background: '#050505', color: '#fff', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", Helvetica, Arial, sans-serif' }}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', marginLeft: '0' }}>
-        <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.25rem' }}>Create</h1>
-            <p style={{ fontSize: '0.875rem', color: '#86868b' }}>Describe what you want to build</p>
+            <h1 style={{ fontSize: '1.375rem', fontWeight: '600', marginBottom: '0.125rem' }}>Create</h1>
+            <p style={{ fontSize: '0.75rem', color: '#86868b' }}>Describe what you want to build</p>
           </div>
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            <div style={{ background: '#0a0a0a', borderRadius: '8px', padding: '0.5rem 1rem', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <span style={{ fontSize: '0.75rem', color: '#86868b' }}>{remainingGenerations}</span>
-              <span style={{ fontSize: '0.75rem', color: '#666' }}> / {FREE_GENERATIONS} left</span>
-            </div>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.75rem', color: '#86868b', background: '#0a0a0a', padding: '0.5rem 0.875rem', borderRadius: '8px' }}>
+              {remaining} / {FREE_GENERATIONS} left
+            </span>
             <button
               onClick={startNew}
               style={{
                 padding: '0.5rem 1rem',
                 background: 'transparent',
-                border: '1px solid rgba(255,255,255,0.2)',
+                border: '1px solid rgba(255,255,255,0.15)',
                 borderRadius: '8px',
                 color: '#fff',
                 cursor: 'pointer',
-                fontSize: '0.875rem'
+                fontSize: '0.8125rem'
               }}
             >
-              New Project
+              New
             </button>
           </div>
         </div>
 
         {currentCode ? (
           <>
-            <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', gap: '0.5rem', alignItems: 'center', background: '#0a0a0a' }}>
+            <div style={{ padding: '0.625rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', gap: '0.375rem', alignItems: 'center', background: '#0a0a0a' }}>
               {['preview', 'code', 'split'].map(v => (
                 <button
                   key={v}
                   onClick={() => setView(v)}
                   style={{
-                    padding: '0.5rem 1rem',
-                    background: view === v ? 'linear-gradient(135deg, #667eea, #764ba2)' : 'transparent',
+                    padding: '0.375rem 0.875rem',
+                    background: view === v ? '#0071e3' : 'transparent',
                     border: 'none',
                     borderRadius: '6px',
                     color: view === v ? '#fff' : '#86868b',
                     cursor: 'pointer',
                     fontSize: '0.75rem',
-                    fontWeight: '500',
                     textTransform: 'capitalize'
                   }}
                 >
@@ -172,17 +152,17 @@ export default function AppPage() {
               <button
                 onClick={downloadCode}
                 style={{
-                  padding: '0.5rem 1rem',
-                  background: '#22c55e',
+                  padding: '0.375rem 0.875rem',
+                  background: '#34c759',
                   border: 'none',
                   borderRadius: '6px',
                   color: '#fff',
                   cursor: 'pointer',
                   fontSize: '0.75rem',
-                  fontWeight: '600'
+                  fontWeight: '500'
                 }}
               >
-                Download HTML
+                Download
               </button>
             </div>
 
@@ -202,13 +182,13 @@ export default function AppPage() {
                   flex: 1, 
                   background: '#0d0d0d', 
                   overflow: 'auto',
-                  borderLeft: view === 'split' ? '1px solid rgba(255,255,255,0.1)' : 'none',
+                  borderLeft: view === 'split' ? '1px solid rgba(255,255,255,0.08)' : 'none',
                   padding: '1rem',
-                  fontFamily: 'monospace',
+                  fontFamily: 'SF Mono, Monaco, monospace',
                   fontSize: '0.75rem',
                   whiteSpace: 'pre-wrap',
                   color: '#a5b4fc',
-                  lineHeight: '1.6'
+                  lineHeight: 1.6
                 }}>
                   {currentCode}
                 </div>
@@ -217,19 +197,19 @@ export default function AppPage() {
           </>
         ) : (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-            <div style={{ flex: 1, overflow: 'auto', padding: '2rem' }}>
+            <div style={{ flex: 1, overflow: 'auto', padding: '1.5rem' }}>
               {messages.map((msg, i) => (
                 <div key={i} style={{ 
-                  marginBottom: '1rem',
+                  marginBottom: '0.875rem',
                   textAlign: msg.role === 'user' ? 'right' : 'left'
                 }}>
                   <div style={{
                     display: 'inline-block',
-                    padding: '0.75rem 1rem',
-                    borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                    background: msg.role === 'user' ? 'linear-gradient(135deg, #667eea, #764ba2)' : '#1a1a1a',
-                    fontSize: '0.9rem',
-                    maxWidth: '70%',
+                    padding: '0.625rem 0.875rem',
+                    borderRadius: msg.role === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+                    background: msg.role === 'user' ? 'linear-gradient(135deg, #bf5af2, #5e5ce6)' : '#1a1a1a',
+                    fontSize: '0.875rem',
+                    maxWidth: '65%',
                     wordBreak: 'break-word'
                   }}>
                     {msg.text}
@@ -237,52 +217,52 @@ export default function AppPage() {
                 </div>
               ))}
               {loading && (
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: '#667eea' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: '#86868b' }}>
                   <div style={{
-                    width: '20px',
-                    height: '20px',
+                    width: '18px',
+                    height: '18px',
                     border: '2px solid #333',
-                    borderTop: '2px solid #667eea',
+                    borderTop: '2px solid #0071e3',
                     borderRadius: '50%',
                     animation: 'spin 0.8s linear infinite'
                   }} />
-                  <span style={{ fontSize: '0.9rem' }}>Building your website...</span>
+                  <span style={{ fontSize: '0.875rem' }}>Building your website...</span>
                 </div>
               )}
             </div>
 
-            <div style={{ padding: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.1)', background: '#0a0a0a' }}>
+            <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid rgba(255,255,255,0.08)', background: '#0a0a0a' }}>
               {limitReached && (
-                <div style={{ background: '#1a1a1a', borderRadius: '12px', padding: '1rem', marginBottom: '1rem', textAlign: 'center', border: '1px solid rgba(255,100,100,0.2)' }}>
-                  <p style={{ color: '#ef4444', fontSize: '0.875rem', marginBottom: '0.75rem' }}>Free trial ended</p>
+                <div style={{ background: '#1a1a1a', borderRadius: '10px', padding: '0.875rem', marginBottom: '0.75rem', textAlign: 'center' }}>
+                  <p style={{ color: '#ff453a', fontSize: '0.8125rem', marginBottom: '0.5rem' }}>Free trial ended</p>
                   <a href="/app/billing" style={{
                     display: 'inline-block',
                     padding: '0.5rem 1rem',
-                    background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                    borderRadius: '8px',
+                    background: '#0071e3',
+                    borderRadius: '6px',
                     color: '#fff',
                     textDecoration: 'none',
-                    fontSize: '0.875rem',
-                    fontWeight: '600'
-                  }}>Upgrade for more generations</a>
+                    fontSize: '0.75rem',
+                    fontWeight: '500'
+                  }}>Upgrade for more</a>
                 </div>
               )}
-              <div style={{ display: 'flex', gap: '0.75rem', background: '#000', borderRadius: '16px', padding: '0.5rem', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', background: '#000', borderRadius: '12px', padding: '0.375rem', border: '1px solid rgba(255,255,255,0.08)' }}>
                 <input
                   type="text"
                   value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && !loading && !limitReached && generateWebsite()}
-                  placeholder="Describe your website... (e.g., A landing page for my coffee shop)"
+                  onChange={e => setPrompt(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && !loading && !limitReached && generateWebsite()}
+                  placeholder="Describe your website..."
                   disabled={loading || limitReached}
                   style={{
                     flex: 1,
-                    padding: '1rem',
+                    padding: '0.75rem 1rem',
                     background: 'transparent',
                     border: 'none',
-                    borderRadius: '12px',
+                    borderRadius: '10px',
                     color: '#fff',
-                    fontSize: '1rem',
+                    fontSize: '0.9375rem',
                     outline: 'none',
                   }}
                 />
@@ -290,15 +270,14 @@ export default function AppPage() {
                   onClick={generateWebsite}
                   disabled={loading || !prompt.trim() || limitReached}
                   style={{
-                    padding: '0 1.5rem',
-                    background: prompt.trim() && !limitReached ? 'linear-gradient(135deg, #667eea, #764ba2)' : '#333',
+                    padding: '0.75rem 1.25rem',
+                    background: prompt.trim() && !limitReached ? '#0071e3' : '#333',
                     border: 'none',
-                    borderRadius: '12px',
+                    borderRadius: '10px',
                     color: '#fff',
                     cursor: loading ? 'not-allowed' : 'pointer',
-                    fontSize: '1rem',
-                    fontWeight: '600',
-                    transition: 'all 0.2s'
+                    fontSize: '0.875rem',
+                    fontWeight: '500'
                   }}
                 >
                   Generate

@@ -15,8 +15,7 @@ export default function AppLayout({ children }) {
 
   useEffect(() => {
     const checkMobile = () => {
-      const isMobileDevice = window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-      setIsMobile(isMobileDevice)
+      setIsMobile(window.innerWidth < 768)
     }
     
     checkMobile()
@@ -27,7 +26,7 @@ export default function AppLayout({ children }) {
     
     if (storedUser) {
       setUser(JSON.parse(storedUser))
-    } else if (!isMobile) {
+    } else {
       router.push('/')
     }
     
@@ -43,7 +42,7 @@ export default function AppLayout({ children }) {
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: '24px', height: '24px', border: '2px solid #333', borderTop: '2px solid #667eea', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <div style={{ width: '24px', height: '24px', border: '2px solid #333', borderTop: '2px solid '#0071e3'', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
       </div>
     )
   }
@@ -56,45 +55,42 @@ export default function AppLayout({ children }) {
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        padding: '2rem',
-        position: 'fixed',
-        inset: 0,
-        zIndex: 9999
+        padding: '2rem'
       }}>
         <div style={{ 
-          background: '#0a0a0a', 
-          borderRadius: '24px', 
-          padding: '3rem', 
+          background: '#1a1a1a', 
+          borderRadius: '20px', 
+          padding: '2.5rem', 
           textAlign: 'center',
-          maxWidth: '400px',
+          maxWidth: '360px',
           border: '1px solid rgba(255,255,255,0.1)'
         }}>
-          <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>💻</div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.75rem' }}>Desktop Required</h1>
-          <p style={{ color: '#86868b', lineHeight: 1.6, marginBottom: '2rem' }}>
-            SiteForge works best on a desktop or laptop computer. Please visit us on a PC for the full experience.
+          <div style={{ fontSize: '3.5rem', marginBottom: '1.5rem' }}>💻</div>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.75rem' }}>Desktop Required</h1>
+          <p style={{ color: '#86868b', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+            SiteForge works best on a desktop. Please visit us on a PC.
           </p>
-          <a 
-            href="/" 
+          <button 
+            onClick={() => window.location.href = '/'}
             style={{
-              display: 'block',
-              padding: '1rem',
-              background: 'linear-gradient(135deg, #667eea, #764ba2)',
-              borderRadius: '12px',
+              padding: '0.875rem 1.5rem',
+              background: '#0071e3',
+              borderRadius: '10px',
+              border: 'none',
               color: '#fff',
-              textDecoration: 'none',
-              fontWeight: '600'
+              fontWeight: '500',
+              cursor: 'pointer'
             }}
           >
             Back to Homepage
-          </a>
+          </button>
         </div>
       </div>
     )
   }
 
   const navItems = [
-    { href: '/app', icon: '🏠', label: 'Home' },
+    { href: '/app', icon: '🏠', label: 'Create' },
     { href: '/app/projects', icon: '📁', label: 'Projects' },
     { href: '/app/settings', icon: '⚙️', label: 'Settings' },
     { href: '/app/billing', icon: '💳', label: 'Billing' },
@@ -105,17 +101,18 @@ export default function AppLayout({ children }) {
     return pathname.startsWith(href)
   }
 
+  const handleLogout = () => {
+    localStorage.removeItem('siteforge_user')
+    localStorage.removeItem('siteforge_remaining')
+    window.location.href = '/'
+  }
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#000', color: '#fff', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", Helvetica, Arial, sans-serif' }}>
-      <aside style={{ width: '240px', background: '#0a0a0a', borderRight: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', position: 'fixed', height: '100vh' }}>
-        <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-          <a href="/app" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', color: '#fff' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg, #667eea, #764ba2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700' }}>S</div>
-            <div>
-              <div style={{ fontWeight: '600', fontSize: '1rem' }}>SiteForge</div>
-              <div style={{ fontSize: '0.7rem', color: '#666' }}>Dashboard</div>
-            </div>
-          </a>
+      <aside style={{ width: '220px', background: '#0a0a0a', borderRight: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', position: 'fixed', height: '100vh' }}>
+        <div style={{ padding: '1.25rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+          <div style={{ fontWeight: '600', fontSize: '1rem', letterSpacing: '-0.01em' }}>SiteForge</div>
+          <div style={{ fontSize: '0.6875rem', color: '#6e6e73', marginTop: '0.125rem' }}>Dashboard</div>
         </div>
 
         <nav style={{ padding: '1rem 0.75rem', flex: 1 }}>
@@ -127,57 +124,52 @@ export default function AppLayout({ children }) {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.75rem',
-                padding: '0.75rem 1rem',
-                borderRadius: '10px',
+                padding: '0.625rem 0.875rem',
+                borderRadius: '8px',
                 textDecoration: 'none',
                 color: isActive(item.href) ? '#fff' : '#86868b',
-                background: isActive(item.href) ? 'rgba(102, 126, 234, 0.15)' : 'transparent',
+                background: isActive(item.href) ? 'rgba(0,113,227,0.15)' : 'transparent',
                 marginBottom: '0.25rem',
-                fontSize: '0.9rem',
+                fontSize: '0.8125rem',
                 transition: 'all 0.2s'
               }}
             >
-              <span style={{ fontSize: '1.125rem' }}>{item.icon}</span>
+              <span style={{ fontSize: '1rem' }}>{item.icon}</span>
               {item.label}
             </a>
           ))}
         </nav>
 
-        <div style={{ padding: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-          <div style={{ background: 'linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1))', borderRadius: '12px', padding: '1rem', marginBottom: '1rem', border: '1px solid rgba(102,126,234,0.2)' }}>
-            <div style={{ fontSize: '0.7rem', color: '#86868b', marginBottom: '0.5rem' }}>FREE TRIAL</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.25rem' }}>
+        <div style={{ padding: '1rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+          <div style={{ background: '#000', borderRadius: '10px', padding: '0.875rem', marginBottom: '0.75rem' }}>
+            <div style={{ fontSize: '0.625rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.375rem' }}>Free Trial</div>
+            <div style={{ fontSize: '1.375rem', fontWeight: '600' }}>
               {remaining}
-              <span style={{ fontSize: '0.875rem', fontWeight: '400', color: '#666' }}> / {FREE_GENERATIONS}</span>
+              <span style={{ fontSize: '0.8125rem', fontWeight: '400', color: '#6e6e73' }}> / {FREE_GENERATIONS}</span>
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#86868b' }}>generations left</div>
-            <div style={{ height: '4px', background: '#222', borderRadius: '2px', marginTop: '0.75rem', overflow: 'hidden' }}>
-              <div style={{ width: `${(remaining / FREE_GENERATIONS) * 100}%`, height: '100%', background: 'linear-gradient(90deg, #667eea, #764ba2)', borderRadius: '2px' }} />
+            <div style={{ height: '3px', background: '#333', borderRadius: '2px', marginTop: '0.5rem', overflow: 'hidden' }}>
+              <div style={{ width: `${(remaining / FREE_GENERATIONS) * 100}%`, height: '100%', background: '#0071e3', borderRadius: '2px' }} />
             </div>
           </div>
-          <a 
-            href="/app/billing" 
+          <button 
+            onClick={handleLogout}
             style={{
-              display: 'block',
               width: '100%',
-              padding: '0.75rem',
-              background: 'linear-gradient(135deg, #667eea, #764ba2)',
-              border: 'none',
-              borderRadius: '10px',
-              color: '#fff',
-              fontSize: '0.875rem',
-              fontWeight: '600',
-              textAlign: 'center',
-              textDecoration: 'none',
+              padding: '0.625rem',
+              background: 'transparent',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '8px',
+              color: '#86868b',
+              fontSize: '0.75rem',
               cursor: 'pointer'
             }}
           >
-            Upgrade to Pro
-          </a>
+            Sign out
+          </button>
         </div>
       </aside>
 
-      <main style={{ marginLeft: '240px', flex: 1, minHeight: '100vh' }}>
+      <main style={{ marginLeft: '220px', flex: 1, minHeight: '100vh' }}>
         {children}
       </main>
 
