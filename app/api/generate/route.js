@@ -1,10 +1,43 @@
 import { NextResponse } from 'next/server'
+import { jwtVerify } from 'jose'
+
+const secret = new TextEncoder().encode(
+  process.env.JWT_SECRET || 'siteforge-secret-key-change-in-production'
+)
+
+const FREE_GENERATIONS = 10
+
+async function getUserFromCookie(request) {
+  const token = request.cookies.get('auth')
+  if (!token) return null
+  
+  try {
+    const { payload } = await jwtVerify(token, secret)
+    return payload
+  } catch {
+    return null
+  }
+}
 
 export async function POST(request) {
   const { prompt, history } = await request.json()
+  const user = await getUserFromCookie(request)
+
+  if (!user) {
+    return NextResponse.json({ error: 'Please sign in to generate websites', requiresAuth: true }, { status: 401 })
+  }
+
+  const generations = user.generations || 0
+  if (generations >= FREE_GENERATIONS) {
+    return NextResponse.json({ 
+      error: 'Free trial ended', 
+      limitReached: true,
+      remainingGenerations: 0
+    }, { status: 403 })
+  }
 
   if (!process.env.GEMINI_API_KEY) {
-    return NextResponse.json({ error: 'GEMINI_API_KEY not set' }, { status: 500 })
+    return NextResponse.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 })
   }
 
   const isRefinement = history && history.length > 0
@@ -58,7 +91,10 @@ Rules:
     code = code.replace(/```\n?/g, '')
     code = code.trim()
 
-    return NextResponse.json({ code })
+    return NextResponse.json({ 
+      code,
+      remainingGenerations: FREE_GENERATIONS - generations - 1
+    })
   } catch (err) {
     return NextResponse.json({ code: '<p>Error generating website</p>' })
   }
