@@ -39,8 +39,8 @@ export default function AppLayout({ children }) {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: '#fafafa', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: '24px', height: '24px', border: '2px solid #d2d2d7', borderTop: '2px solid #0071e3', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+      <div style={{ minHeight: '100vh', background: '#0a0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '24px', height: '24px', border: '2px solid #222', borderTop: '2px solid #fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
       </div>
     )
   }
@@ -49,34 +49,39 @@ export default function AppLayout({ children }) {
     return (
       <div style={{ 
         minHeight: '100vh', 
-        background: '#fafafa', 
+        background: '#0a0a0a', 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
         padding: '2rem'
       }}>
         <div style={{ 
-          background: '#fff', 
-          borderRadius: '20px', 
+          background: '#141414', 
+          borderRadius: '16px', 
           padding: '2.5rem', 
           textAlign: 'center',
-          maxWidth: '360px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
+          maxWidth: '360px'
         }}>
-          <div style={{ fontSize: '3.5rem', marginBottom: '1.5rem' }}>💻</div>
-          <h1 style={{ fontSize: '1.375rem', fontWeight: '600', marginBottom: '0.75rem', color: '#1d1d1f' }}>Desktop Required</h1>
-          <p style={{ color: '#86868b', lineHeight: 1.6, marginBottom: '1.5rem', fontSize: '0.9375rem' }}>
-            SiteForge works best on a desktop. Please visit us on a PC.
+          <div style={{ fontSize: '3rem', marginBottom: '1.5rem' }}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="1.5" style={{ margin: '0 auto', display: 'block' }}>
+              <rect x="2" y="3" width="20" height="14" rx="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+          </div>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.75rem', color: '#fff' }}>Desktop Required</h1>
+          <p style={{ color: '#666', lineHeight: 1.6, marginBottom: '1.5rem', fontSize: '0.9375rem' }}>
+            SiteForge works best on a desktop. Please visit on a PC or Mac.
           </p>
           <button 
             onClick={() => window.location.href = '/'}
             style={{
               padding: '0.875rem 1.5rem',
-              background: '#0071e3',
-              borderRadius: '10px',
+              background: '#fff',
+              borderRadius: '8px',
               border: 'none',
-              color: '#fff',
-              fontWeight: '500',
+              color: '#000',
+              fontWeight: '600',
               cursor: 'pointer',
               fontSize: '0.9375rem'
             }}
@@ -89,10 +94,10 @@ export default function AppLayout({ children }) {
   }
 
   const navItems = [
-    { href: '/app', label: 'Create' },
-    { href: '/app/projects', label: 'Projects' },
-    { href: '/app/settings', label: 'Settings' },
-    { href: '/app/billing', label: 'Billing' },
+    { href: '/app', label: 'Create', icon: 'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5' },
+    { href: '/app/projects', label: 'Projects', icon: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z' },
+    { href: '/app/settings', label: 'Settings', icon: 'M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z' },
+    { href: '/app/billing', label: 'Billing', icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z' },
   ]
 
   const isActive = (href) => {
@@ -107,68 +112,74 @@ export default function AppLayout({ children }) {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#fafafa', color: '#1d1d1f', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", Helvetica, Arial, sans-serif' }}>
-      <aside style={{ width: '220px', background: '#fff', borderRight: '1px solid #d2d2d7', display: 'flex', flexDirection: 'column', position: 'fixed', height: '100vh' }}>
-        <div style={{ padding: '1.25rem', borderBottom: '1px solid #d2d2d7' }}>
-          <div style={{ fontWeight: '600', fontSize: '1rem', letterSpacing: '-0.01em', color: '#1d1d1f' }}>SiteForge</div>
-          <div style={{ fontSize: '0.6875rem', color: '#86868b', marginTop: '0.125rem' }}>Dashboard</div>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#0a0a0a', color: '#fff', fontFamily: 'Inter, -apple-system, sans-serif' }}>
+      <aside style={{ width: '72px', background: '#0f0f0f', borderRight: '1px solid #1a1a1a', display: 'flex', flexDirection: 'column', position: 'fixed', height: '100vh', zIndex: 50 }}>
+        <div style={{ padding: '1.25rem', borderBottom: '1px solid #1a1a1a', textAlign: 'center' }}>
+          <div style={{ fontWeight: '700', fontSize: '1rem', letterSpacing: '-0.02em', color: '#fff' }}>SF</div>
         </div>
 
-        <nav style={{ padding: '1rem 0.75rem', flex: 1 }}>
+        <nav style={{ padding: '1rem 0', flex: 1 }}>
           {navItems.map((item) => (
             <a
               key={item.href}
               href={item.href}
+              title={item.label}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '0.625rem',
-                borderRadius: '8px',
+                width: '48px',
+                height: '48px',
+                margin: '0 auto 0.25rem',
+                borderRadius: '12px',
                 textDecoration: 'none',
-                color: isActive(item.href) ? '#0071e3' : '#86868b',
-                background: isActive(item.href) ? 'rgba(0,113,227,0.08)' : 'transparent',
-                marginBottom: '0.25rem',
-                fontSize: '0.8125rem',
-                fontWeight: isActive(item.href) ? '600' : '400',
+                color: isActive(item.href) ? '#fff' : '#555',
+                background: isActive(item.href) ? '#1a1a1a' : 'transparent',
                 transition: 'all 0.2s'
               }}
             >
-              {item.label}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d={item.icon} />
+              </svg>
             </a>
           ))}
         </nav>
 
-        <div style={{ padding: '1rem', borderTop: '1px solid #d2d2d7' }}>
-          <div style={{ background: '#f5f5f7', borderRadius: '10px', padding: '0.875rem', marginBottom: '0.75rem' }}>
-            <div style={{ fontSize: '0.625rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.375rem' }}>Free Trial</div>
-            <div style={{ fontSize: '1.375rem', fontWeight: '600', color: '#1d1d1f' }}>
-              {remaining}
-              <span style={{ fontSize: '0.8125rem', fontWeight: '400', color: '#86868b' }}> / {FREE_GENERATIONS}</span>
-            </div>
-            <div style={{ height: '3px', background: '#d2d2d7', borderRadius: '2px', marginTop: '0.5rem', overflow: 'hidden' }}>
-              <div style={{ width: `${(remaining / FREE_GENERATIONS) * 100}%`, height: '100%', background: '#0071e3', borderRadius: '2px' }} />
-            </div>
+        <div style={{ padding: '1rem', borderTop: '1px solid #1a1a1a' }}>
+          <div style={{ 
+            background: '#1a1a1a', 
+            borderRadius: '10px', 
+            padding: '0.75rem',
+            marginBottom: '0.5rem',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#fff' }}>{remaining}</div>
+            <div style={{ fontSize: '0.625rem', color: '#555', textTransform: 'uppercase', letterSpacing: '0.05em' }}>left</div>
           </div>
           <button 
             onClick={handleLogout}
+            title="Sign out"
             style={{
               width: '100%',
               padding: '0.625rem',
               background: 'transparent',
-              border: '1px solid #d2d2d7',
+              border: 'none',
               borderRadius: '8px',
-              color: '#86868b',
-              fontSize: '0.75rem',
-              cursor: 'pointer'
+              color: '#555',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
           >
-            Sign out
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+            </svg>
           </button>
         </div>
       </aside>
 
-      <main style={{ marginLeft: '220px', flex: 1, minHeight: '100vh' }}>
+      <main style={{ marginLeft: '72px', flex: 1, minHeight: '100vh' }}>
         {children}
       </main>
 
