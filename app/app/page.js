@@ -14,6 +14,7 @@ export default function AppPage() {
   const [remaining, setRemaining] = useState(FREE_GENERATIONS)
   const [limitReached, setLimitReached] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [hasGenerated, setHasGenerated] = useState(false)
   const messagesEndRef = useRef(null)
 
   useEffect(() => {
@@ -38,6 +39,7 @@ export default function AppPage() {
         if (project.code) {
           setCurrentCode(project.code)
           setCurrentName(project.name || 'Untitled')
+          setHasGenerated(true)
           const userMsg = { role: 'user', text: project.prompt || project.name }
           setMessages([userMsg, { role: 'assistant', text: 'Website loaded from your projects.' }])
         }
@@ -83,8 +85,11 @@ export default function AppPage() {
       if (data.code) {
         const name = currentPrompt.slice(0, 40) + (currentPrompt.length > 40 ? '...' : '')
         setCurrentName(name)
-        setMessages(prev => [...prev, { role: 'assistant', text: 'Website generated! Save it to your projects.' }])
         setCurrentCode(data.code)
+        setHasGenerated(true)
+        setView('split')
+        
+        setMessages(prev => [...prev, { role: 'assistant', text: 'Website generated! Click "Save" to save to your projects.' }])
         
         const newRemaining = remaining - 1
         setRemaining(newRemaining)
@@ -103,11 +108,12 @@ export default function AppPage() {
     if (!currentCode) return
     
     const projects = JSON.parse(localStorage.getItem('siteforge_projects') || '[]')
+    const userPrompt = messages.find(m => m.role === 'user')?.text || currentName
     const newProject = {
       id: Date.now(),
       name: currentName || 'Untitled Project',
       code: currentCode,
-      prompt: messages.find(m => m.role === 'user')?.text || '',
+      prompt: userPrompt,
       createdAt: new Date().toISOString()
     }
     
@@ -133,6 +139,7 @@ export default function AppPage() {
     setCurrentCode('')
     setCurrentName('')
     setPrompt('')
+    setHasGenerated(false)
     setView('split')
     setSaved(false)
   }
@@ -305,7 +312,7 @@ export default function AppPage() {
       </div>
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#0a0a0a' }}>
-        {currentCode ? (
+        {hasGenerated && currentCode ? (
           <>
             <div style={{ padding: '0.75rem 1.25rem', borderBottom: '1px solid #1a1a1a', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <div style={{ display: 'flex', gap: '0.25rem' }}>
@@ -382,7 +389,7 @@ export default function AppPage() {
                 <div style={{ flex: 1, background: '#fff', overflow: 'auto' }}>
                   <iframe
                     srcDoc={currentCode}
-                    style={{ width: '100%', height: '100%', border: 'none' }}
+                    style={{ width: '100%', height: '100%', border: 'none', minHeight: '100%' }}
                     sandbox="allow-scripts"
                   />
                 </div>
@@ -414,7 +421,7 @@ export default function AppPage() {
                 <path d="M21 15l-5-5L5 21"/>
               </svg>
               <p style={{ fontSize: '0.9375rem' }}>Your website preview will appear here</p>
-              <p style={{ fontSize: '0.8125rem', color: '#333', marginTop: '0.5rem' }}>Generate a website to see it here</p>
+              <p style={{ fontSize: '0.8125rem', color: '#333', marginTop: '0.5rem' }}>Describe a website and click Generate</p>
             </div>
           </div>
         )}
