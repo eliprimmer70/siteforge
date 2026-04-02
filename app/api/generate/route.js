@@ -35,7 +35,7 @@ Rules:
 
   try {
     const res = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/@cf/meta/llama-3.1-8b-instant`,
+      `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/@cf/meta/llama-3-8b-instruct`,
       {
         method: 'POST',
         headers: {
@@ -43,8 +43,10 @@ Rules:
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          messages: [{ role: 'user', content: systemPrompt }],
-          max_tokens: 4096
+          messages: [
+            { role: 'system', content: 'You are a helpful web developer.' },
+            { role: 'user', content: systemPrompt }
+          ]
         })
       }
     )
@@ -53,9 +55,6 @@ Rules:
 
     if (data.errors) {
       const errorMsg = data.errors[0]?.message || 'Unknown error'
-      if (errorMsg.includes('Authentication')) {
-        return NextResponse.json({ error: 'Authentication failed. Make sure Workers AI is enabled and your API token is correct.' }, { status: 500 })
-      }
       return NextResponse.json({ error: `Cloudflare error: ${errorMsg}` }, { status: 500 })
     }
 
