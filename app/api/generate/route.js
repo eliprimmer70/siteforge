@@ -10,20 +10,7 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Cloudflare not configured. Add CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN in Vercel settings.' }, { status: 500 })
   }
 
-  const systemPrompt = `You are an expert web developer. Generate a complete, professional, production-ready single-page HTML website.
-
-The user wants: "${prompt}"
-
-Create a modern, professional website with these sections:
-1. Navigation with logo and menu
-2. Hero section with headline, subheadline, CTA
-3. About/Services section
-4. Features/Benefits with icons
-5. Testimonials
-6. Contact/CTA section
-7. Footer
-
-Use realistic content - real company names, specific descriptions, believable testimonials.
+  const systemPrompt = `You are an expert web developer. Generate a complete, professional, production-ready single-page HTML website based on: "${prompt}"
 
 Rules:
 - Return ONLY raw HTML with embedded CSS
@@ -31,7 +18,8 @@ Rules:
 - Use Tailwind CSS via CDN: <script src="https://cdn.tailwindcss.com"></script>
 - Modern, clean design
 - Mobile responsive
-- Make it look like a real business website`
+- Include these sections: Navigation, Hero, About/Services, Features, Testimonials, Contact, Footer
+- Use realistic content`
 
   try {
     const res = await fetch(
@@ -46,7 +34,8 @@ Rules:
           messages: [
             { role: 'system', content: 'You are a helpful web developer.' },
             { role: 'user', content: systemPrompt }
-          ]
+          ],
+          max_tokens: 2048
         })
       }
     )
@@ -54,12 +43,11 @@ Rules:
     const data = await res.json()
 
     if (data.errors) {
-      const errorMsg = data.errors[0]?.message || 'Unknown error'
-      return NextResponse.json({ error: `Cloudflare error: ${errorMsg}` }, { status: 500 })
+      return NextResponse.json({ error: `Cloudflare error: ${data.errors[0]?.message || JSON.stringify(data.errors)}` }, { status: 500 })
     }
 
     if (!data.result?.response) {
-      return NextResponse.json({ error: 'No response from AI. Try again.' }, { status: 500 })
+      return NextResponse.json({ error: 'No response. Try again.' }, { status: 500 })
     }
 
     let code = data.result.response
@@ -69,12 +57,12 @@ Rules:
     code = code.replace(/```HTML\n?/g, '')
     code = code.trim()
 
-    if (!code || code.length < 200) {
-      return NextResponse.json({ error: 'Generated code was too short. Try again.' }, { status: 500 })
+    if (!code || code.length < 100) {
+      return NextResponse.json({ error: 'Generated code too short. Try again.' }, { status: 500 })
     }
 
     return NextResponse.json({ code, success: true })
   } catch (err) {
-    return NextResponse.json({ error: 'Connection failed. Check your Cloudflare settings.' }, { status: 500 })
+    return NextResponse.json({ error: `Connection error: ${err.message}` }, { status: 500 })
   }
 }
