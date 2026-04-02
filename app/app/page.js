@@ -8,7 +8,7 @@ export default function AppPage() {
   const [prompt, setPrompt] = useState('')
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(false)
-  const [view, setView] = useState('preview')
+  const [view, setView] = useState('split')
   const [currentCode, setCurrentCode] = useState('')
   const [history, setHistory] = useState([])
   const [remaining, setRemaining] = useState(FREE_GENERATIONS)
@@ -63,7 +63,7 @@ export default function AppPage() {
       }
       
       if (data.code) {
-        setMessages(prev => [...prev, { role: 'assistant', text: 'Your website is ready! Check the preview.' }])
+        setMessages(prev => [...prev, { role: 'assistant', text: 'Your website is ready! Check the preview on the right.' }])
         setCurrentCode(data.code)
         setHistory(prev => [...prev, { role: 'user', text: currentPrompt }, { role: 'assistant', text: data.code }])
         
@@ -95,7 +95,7 @@ export default function AppPage() {
     setCurrentCode('')
     setHistory([])
     setPrompt('')
-    setView('preview')
+    setView('split')
   }
 
   return (
@@ -104,10 +104,21 @@ export default function AppPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
           <div>
             <h1 style={{ fontSize: '2rem', fontWeight: '600', marginBottom: '0.25rem', letterSpacing: '-0.02em' }}>Create</h1>
-            <p style={{ fontSize: '1rem', color: '#86868b' }}>Describe what you want to build</p>
+            <p style={{ fontSize: '0.9375rem', color: '#86868b' }}>Describe what you want to build</p>
           </div>
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-            <div style={{ background: '#fff', padding: '0.625rem 1rem', borderRadius: '10px', fontSize: '0.875rem', color: '#86868b', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <div style={{ 
+              background: '#fff', 
+              padding: '0.625rem 1rem', 
+              borderRadius: '10px', 
+              fontSize: '0.875rem', 
+              color: '#86868b', 
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+              display: 'flex', alignItems: 'center', gap: '0.5rem'
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#86868b" strokeWidth="2">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
               <span style={{ fontWeight: '600', color: '#1d1d1f' }}>{remaining}</span> / {FREE_GENERATIONS} left
             </div>
             <button
@@ -121,18 +132,23 @@ export default function AppPage() {
                 cursor: 'pointer',
                 fontSize: '0.875rem',
                 fontWeight: '500',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                display: 'flex', alignItems: 'center', gap: '0.5rem'
               }}
             >
-              New Project
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              New
             </button>
           </div>
         </div>
 
         {currentCode ? (
           <>
-            <div style={{ background: '#fff', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.05)', flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #f0f0f0', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <div style={{ background: '#fff', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ padding: '0.875rem 1.25rem', borderBottom: '1px solid #f0f0f0', display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
                 {['preview', 'code', 'split'].map(v => (
                   <button
                     key={v}
@@ -146,7 +162,8 @@ export default function AppPage() {
                       cursor: 'pointer',
                       fontSize: '0.8125rem',
                       textTransform: 'capitalize',
-                      fontWeight: '500'
+                      fontWeight: '500',
+                      transition: 'all 0.15s'
                     }}
                   >
                     {v}
@@ -163,10 +180,14 @@ export default function AppPage() {
                     color: '#fff',
                     cursor: 'pointer',
                     fontSize: '0.8125rem',
-                    fontWeight: '600'
+                    fontWeight: '600',
+                    display: 'flex', alignItems: 'center', gap: '0.375rem'
                   }}
                 >
-                  Download HTML
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                  </svg>
+                  Download
                 </button>
               </div>
 
@@ -186,13 +207,13 @@ export default function AppPage() {
                     flex: 1, 
                     background: '#1d1d1f', 
                     overflow: 'auto',
-                    borderLeft: view === 'split' ? '1px solid #d2d2d7' : 'none',
-                    padding: '1rem',
+                    borderLeft: view === 'split' ? '1px solid #3d3d3f' : 'none',
+                    padding: '1.25rem',
                     fontFamily: '"SF Mono", Monaco, Menlo, monospace',
                     fontSize: '0.8125rem',
                     whiteSpace: 'pre-wrap',
-                    color: '#a5b4fc',
-                    lineHeight: 1.6
+                    color: '#e5e5e7',
+                    lineHeight: 1.7
                   }}>
                     {currentCode}
                   </div>
@@ -201,95 +222,130 @@ export default function AppPage() {
             </div>
           </>
         ) : (
-          <div style={{ background: '#fff', borderRadius: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)', flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ background: '#fff', borderRadius: '20px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', flex: 1, display: 'flex', flexDirection: 'column' }}>
             <div style={{ flex: 1, overflow: 'auto', padding: '2rem' }}>
               {messages.length === 0 && (
-                <div style={{ textAlign: 'center', paddingTop: '3rem' }}>
-                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✨</div>
-                  <h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.5rem' }}>What should we build?</h3>
-                  <p style={{ color: '#86868b', maxWidth: '400px', margin: '0 auto', lineHeight: 1.5 }}>
+                <div style={{ textAlign: 'center', paddingTop: '4rem' }}>
+                  <div style={{ 
+                    width: '80px', height: '80px', borderRadius: '24px',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 1.5rem', fontSize: '2.5rem'
+                  }}>
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.5">
+                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                  </div>
+                  <h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.5rem', color: '#1d1d1f' }}>What should we build?</h3>
+                  <p style={{ color: '#86868b', maxWidth: '400px', margin: '0 auto 2rem', lineHeight: 1.5 }}>
                     Describe your website and our AI will generate it for you in seconds.
                   </p>
-                  <div style={{ marginTop: '2rem', display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                    {['Landing page', 'Portfolio', 'Dashboard', 'Online store'].map((suggestion, i) => (
-                      <button key={i} onClick={() => setPrompt(suggestion)} style={{
-                        padding: '0.5rem 1rem',
+                  <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                    {[
+                      { label: 'Landing page', icon: '🚀' },
+                      { label: 'Portfolio', icon: '👤' },
+                      { label: 'Dashboard', icon: '📊' },
+                      { label: 'Online store', icon: '🛒' }
+                    ].map((s, i) => (
+                      <button key={i} onClick={() => setPrompt(s.label)} style={{
+                        padding: '0.75rem 1.25rem',
                         background: '#f5f5f7',
-                        border: '1px solid #d2d2d7',
+                        border: '1px solid #e5e5e7',
                         borderRadius: '20px',
-                        fontSize: '0.8125rem',
-                        color: '#86868b',
-                        cursor: 'pointer'
+                        fontSize: '0.875rem',
+                        color: '#1d1d1f',
+                        cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', gap: '0.5rem',
+                        transition: 'all 0.2s'
                       }}>
-                        {suggestion}
+                        <span>{s.icon}</span> {s.label}
                       </button>
                     ))}
                   </div>
                 </div>
               )}
               
-              {messages.map((msg, i) => (
-                <div key={i} style={{ 
-                  marginBottom: '1rem',
-                  textAlign: msg.role === 'user' ? 'right' : 'left'
-                }}>
-                  <div style={{
-                    display: 'inline-block',
-                    padding: '0.875rem 1rem',
-                    borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                    background: msg.role === 'user' ? '#0071e3' : '#f5f5f7',
-                    color: msg.role === 'user' ? '#fff' : '#1d1d1f',
-                    fontSize: '1rem',
-                    maxWidth: '70%',
-                    wordBreak: 'break-word'
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {messages.map((msg, i) => (
+                  <div key={i} style={{ 
+                    display: 'flex',
+                    justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start'
                   }}>
-                    {msg.text}
+                    <div style={{
+                      maxWidth: '80%',
+                      padding: '1rem 1.25rem',
+                      borderRadius: msg.role === 'user' ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
+                      background: msg.role === 'user' ? '#0071e3' : '#f5f5f7',
+                      color: msg.role === 'user' ? '#fff' : '#1d1d1f',
+                      fontSize: '0.9375rem',
+                      lineHeight: 1.5,
+                      wordBreak: 'break-word'
+                    }}>
+                      {msg.text}
+                    </div>
                   </div>
-                </div>
-              ))}
-              {loading && (
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: '#86868b' }}>
-                  <div style={{
-                    width: '20px',
-                    height: '20px',
-                    border: '2px solid #d2d2d7',
-                    borderTop: '2px solid #0071e3',
-                    borderRadius: '50%',
-                    animation: 'spin 0.8s linear infinite'
-                  }} />
-                  <span style={{ fontSize: '1rem' }}>Building your website...</span>
-                </div>
-              )}
+                ))}
+                {loading && (
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: '#86868b', padding: '0.5rem 0' }}>
+                    <div style={{
+                      width: '20px',
+                      height: '20px',
+                      border: '2px solid #e5e5e7',
+                      borderTop: '2px solid #0071e3',
+                      borderRadius: '50%',
+                      animation: 'spin 0.8s linear infinite'
+                    }} />
+                    <span style={{ fontSize: '0.9375rem' }}>Building your website...</span>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div style={{ padding: '1.5rem', borderTop: '1px solid #f0f0f0' }}>
               {limitReached && (
-                <div style={{ background: '#fff3cd', borderRadius: '12px', padding: '1rem', marginBottom: '1rem', textAlign: 'center' }}>
-                  <p style={{ color: '#856404', fontSize: '0.9375rem', marginBottom: '0.5rem' }}>Free trial ended</p>
+                <div style={{ 
+                  background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+                  borderRadius: '12px', 
+                  padding: '1rem 1.25rem', 
+                  marginBottom: '1rem', 
+                  display: 'flex', 
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <div>
+                    <p style={{ color: '#92400e', fontSize: '0.9375rem', fontWeight: '600', marginBottom: '0.125rem' }}>Free trial ended</p>
+                    <p style={{ color: '#b45309', fontSize: '0.8125rem' }}>Upgrade to get more generations</p>
+                  </div>
                   <a href="/app/billing" style={{
                     display: 'inline-block',
-                    padding: '0.5rem 1rem',
+                    padding: '0.625rem 1rem',
                     background: '#0071e3',
                     borderRadius: '8px',
                     color: '#fff',
                     textDecoration: 'none',
-                    fontSize: '0.875rem',
-                    fontWeight: '500'
-                  }}>Upgrade for more generations</a>
+                    fontSize: '0.8125rem',
+                    fontWeight: '600'
+                  }}>Upgrade</a>
                 </div>
               )}
-              <div style={{ display: 'flex', gap: '0.75rem', background: '#fff', borderRadius: '16px', padding: '0.5rem', border: '1px solid #d2d2d7', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+              <div style={{ 
+                display: 'flex', gap: '0.75rem', 
+                background: '#f5f5f7', 
+                borderRadius: '16px', 
+                padding: '0.5rem',
+                border: '1px solid #e5e5e7'
+              }}>
                 <input
                   type="text"
                   value={prompt}
                   onChange={e => setPrompt(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && !loading && !limitReached && generateWebsite()}
+                  onKeyDown={e => e.key === 'Enter' && !loading && !limitReached && prompt.trim() && generateWebsite()}
                   placeholder="Describe your website... (e.g., A landing page for my coffee shop)"
                   disabled={loading || limitReached}
                   style={{
                     flex: 1,
-                    padding: '1rem',
-                    background: 'transparent',
+                    padding: '1rem 1.25rem',
+                    background: '#fff',
                     border: 'none',
                     borderRadius: '12px',
                     color: '#1d1d1f',
@@ -306,11 +362,25 @@ export default function AppPage() {
                     border: 'none',
                     borderRadius: '12px',
                     color: '#fff',
-                    cursor: loading ? 'not-allowed' : 'pointer',
+                    cursor: (loading || !prompt.trim() || limitReached) ? 'not-allowed' : 'pointer',
                     fontSize: '1rem',
-                    fontWeight: '600'
+                    fontWeight: '600',
+                    display: 'flex', alignItems: 'center', gap: '0.5rem'
                   }}
                 >
+                  {loading ? (
+                    <div style={{
+                      width: '18px', height: '18px',
+                      border: '2px solid rgba(255,255,255,0.3)',
+                      borderTop: '2px solid #fff',
+                      borderRadius: '50%',
+                      animation: 'spin 0.8s linear infinite'
+                    }} />
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                  )}
                   Generate
                 </button>
               </div>

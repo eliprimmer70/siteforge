@@ -5,36 +5,19 @@ import { useState, useEffect, useRef } from 'react'
 export default function Landing() {
   const [email, setEmail] = useState('')
   const [showAuth, setShowAuth] = useState(false)
-  const [authStep, setAuthStep] = useState('email')
-  const [code, setCode] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [statsVisible, setStatsVisible] = useState(false)
-  const [showMobileNav, setShowMobileNav] = useState(false)
-  const statsRef = useRef(null)
+  const [scrollY, setScrollY] = useState(0)
+  const [mounted, setMounted] = useState(false)
+  const heroRef = useRef(null)
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setStatsVisible(true)
-      },
-      { threshold: 0.3 }
-    )
-    if (statsRef.current) observer.observe(statsRef.current)
-    return () => observer.disconnect()
+    setMounted(true)
+    const handleScroll = () => setScrollY(window.scrollY)
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const handleSendCode = async () => {
+  const handleAuth = () => {
     if (!email || !email.includes('@')) return
-    setLoading(true)
-    await new Promise(r => setTimeout(r, 1000))
-    setAuthStep('verify')
-    setLoading(false)
-  }
-
-  const handleVerify = async () => {
-    if (code.length !== 6) return
-    setLoading(true)
-    await new Promise(r => setTimeout(r, 1000))
     const userData = { email, remainingGenerations: 10, verified: true }
     localStorage.setItem('siteforge_user', JSON.stringify(userData))
     localStorage.setItem('siteforge_remaining', '10')
@@ -42,398 +25,349 @@ export default function Landing() {
   }
 
   return (
-    <div style={{ background: '#fafafa', color: '#18181b', fontFamily: 'Inter, -apple-system, sans-serif', overflowX: 'hidden' }}>
+    <div style={{ background: '#000', color: '#fff', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Helvetica, Arial, sans-serif', overflowX: 'hidden' }}>
       {showAuth && (
         <div style={{ 
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', 
-          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
-          animation: 'fadeIn 0.2s ease'
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', 
+          backdropFilter: 'blur(50px)', WebkitBackdropFilter: 'blur(50px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 
         }}>
           <div style={{ 
-            background: '#fff', borderRadius: '20px', padding: '2.5rem', width: '100%', maxWidth: '420px',
-            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
-            animation: 'slideUp 0.3s ease'
+            background: '#1c1c1e', borderRadius: '20px', padding: '2.5rem', width: '90%', maxWidth: '420px',
+            boxShadow: '0 25px 100px rgba(0,0,0,0.6)'
           }}>
-            {authStep === 'email' ? (
-              <>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.5rem' }}>Create your account</h2>
-                <p style={{ color: '#71717a', fontSize: '0.9375rem', marginBottom: '1.5rem' }}>Start with 10 free generations</p>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="you@company.com"
-                  style={{
-                    width: '100%', padding: '1rem', borderRadius: '12px',
-                    border: '1px solid #e4e4e7', background: '#fafafa', color: '#18181b',
-                    fontSize: '1rem', boxSizing: 'border-box', outline: 'none', marginBottom: '1rem'
-                  }}
-                />
-                <button onClick={handleSendCode} disabled={loading} style={{
-                  width: '100%', padding: '1rem', borderRadius: '12px',
-                  background: '#18181b', border: 'none', color: '#fff',
-                  fontSize: '1rem', fontWeight: '600', cursor: 'pointer', opacity: loading ? 0.7 : 1
-                }}>
-                  {loading ? 'Sending...' : 'Continue with email'}
-                </button>
-                <div style={{ display: 'flex', alignItems: 'center', margin: '1.5rem 0' }}>
-                  <div style={{ flex: 1, height: '1px', background: '#e4e4e7' }} />
-                  <span style={{ padding: '0 1rem', color: '#a1a1aa', fontSize: '0.75rem' }}>or continue with</span>
-                  <div style={{ flex: 1, height: '1px', background: '#e4e4e7' }} />
-                </div>
-                <button style={{
-                  width: '100%', padding: '1rem', borderRadius: '12px',
-                  background: '#fff', border: '1px solid #e4e4e7', color: '#18181b',
-                  fontSize: '1rem', fontWeight: '600', cursor: 'pointer', marginBottom: '0.75rem',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem'
-                }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                  Continue with Google
-                </button>
-                <p style={{ fontSize: '0.75rem', color: '#a1a1aa', textAlign: 'center', marginTop: '1rem' }}>
-                  By continuing, you agree to our <span style={{ color: '#18181b' }}>Terms</span> and <span style={{ color: '#18181b' }}>Privacy Policy</span>
-                </p>
-                <button onClick={() => setShowAuth(false)} style={{
-                  width: '100%', marginTop: '1rem', padding: '0.75rem', borderRadius: '12px',
-                  background: 'transparent', border: 'none', color: '#71717a', fontSize: '0.9375rem', cursor: 'pointer'
-                }}>
-                  Maybe later
-                </button>
-              </>
-            ) : (
-              <>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.5rem' }}>Check your email</h2>
-                <p style={{ color: '#71717a', fontSize: '0.9375rem', marginBottom: '1.5rem' }}>We sent a code to {email}</p>
-                <input
-                  type="text"
-                  value={code}
-                  onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  placeholder="Enter 6-digit code"
-                  maxLength={6}
-                  style={{
-                    width: '100%', padding: '1rem', borderRadius: '12px',
-                    border: '1px solid #e4e4e7', background: '#fafafa', color: '#18181b',
-                    fontSize: '1.5rem', textAlign: 'center', letterSpacing: '0.5rem', boxSizing: 'border-box', outline: 'none', marginBottom: '1rem'
-                  }}
-                />
-                <button onClick={handleVerify} disabled={loading || code.length !== 6} style={{
-                  width: '100%', padding: '1rem', borderRadius: '12px',
-                  background: '#18181b', border: 'none', color: '#fff',
-                  fontSize: '1rem', fontWeight: '600', cursor: 'pointer', opacity: code.length !== 6 ? 0.5 : 1
-                }}>
-                  {loading ? 'Verifying...' : 'Verify email'}
-                </button>
-                <button onClick={() => setAuthStep('email')} style={{
-                  width: '100%', marginTop: '1rem', padding: '0.75rem', borderRadius: '12px',
-                  background: 'transparent', border: 'none', color: '#71717a', fontSize: '0.875rem', cursor: 'pointer'
-                }}>
-                  ← Back to email
-                </button>
-              </>
-            )}
+            <h2 style={{ fontSize: '1.75rem', fontWeight: '600', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Start building.</h2>
+            <p style={{ color: '#86868b', fontSize: '1rem', marginBottom: '2rem', lineHeight: 1.5 }}>Enter your email to create an account and get 10 free generations.</p>
+            
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="name@email.com"
+              autoFocus
+              style={{
+                width: '100%', padding: '1rem 1.125rem', borderRadius: '12px',
+                border: '1px solid #424245', background: '#2c2c2e', color: '#fff',
+                fontSize: '1rem', boxSizing: 'border-box', outline: 'none', marginBottom: '1rem',
+                transition: 'border-color 0.2s, box-shadow 0.2s'
+              }}
+              onFocus={e => { e.target.style.borderColor = '#007aff'; e.target.style.boxShadow = '0 0 0 3px rgba(0,122,255,0.2)'; }}
+              onBlur={e => { e.target.style.borderColor = '#424245'; e.target.style.boxShadow = 'none'; }}
+              onKeyDown={e => e.key === 'Enter' && handleAuth()}
+            />
+            
+            <button onClick={handleAuth} style={{
+              width: '100%', padding: '1rem 1.5rem', borderRadius: '12px',
+              background: '#007aff', border: 'none', color: '#fff',
+              fontSize: '1rem', fontWeight: '600', cursor: 'pointer',
+              transition: 'background 0.2s'
+            }}
+            onMouseOver={e => e.target.style.background = '#0071e3'}
+            onMouseOut={e => e.target.style.background = '#007aff'}
+            >
+              Continue
+            </button>
+            
+            <p style={{ fontSize: '0.8125rem', color: '#6e6e73', textAlign: 'center', marginTop: '1.5rem', lineHeight: 1.5 }}>
+              By continuing, you agree to our <span style={{ color: '#2997ff', cursor: 'pointer' }}>Terms</span> and <span style={{ color: '#2997ff', cursor: 'pointer' }}>Privacy Policy</span>.
+            </p>
           </div>
         </div>
       )}
 
-      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '1rem 2rem', background: 'rgba(250,250,250,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #e4e4e7' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ fontWeight: '800', fontSize: '1.25rem', letterSpacing: '-0.02em' }}>SiteForge</div>
-          <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }} className="desktop-nav">
-            <a href="#features" style={{ color: '#71717a', textDecoration: 'none', fontSize: '0.9375rem' }}>Features</a>
-            <a href="#how" style={{ color: '#71717a', textDecoration: 'none', fontSize: '0.9375rem' }}>How it works</a>
-            <a href="#pricing" style={{ color: '#71717a', textDecoration: 'none', fontSize: '0.9375rem' }}>Pricing</a>
-            <a href="#faq" style={{ color: '#71717a', textDecoration: 'none', fontSize: '0.9375rem' }}>FAQ</a>
+      <nav style={{ 
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, 
+        padding: '0 5%', background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)'
+      }}>
+        <div style={{ maxWidth: '980px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '52px' }}>
+          <div style={{ fontWeight: '600', fontSize: '1.125rem', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#007aff" strokeWidth="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            SiteForge
+          </div>
+          <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+            <a href="#features" style={{ color: '#f5f5f7', textDecoration: 'none', fontSize: '0.8125rem', opacity: 0.8, transition: 'opacity 0.2s' }}
+               onMouseOver={e => e.target.style.opacity = '1'}
+               onMouseOut={e => e.target.style.opacity = '0.8'}>Features</a>
+            <a href="#how" style={{ color: '#f5f5f7', textDecoration: 'none', fontSize: '0.8125rem', opacity: 0.8, transition: 'opacity 0.2s' }}
+               onMouseOver={e => e.target.style.opacity = '1'}
+               onMouseOut={e => e.target.style.opacity = '0.8'}>How it works</a>
+            <a href="#pricing" style={{ color: '#f5f5f7', textDecoration: 'none', fontSize: '0.8125rem', opacity: 0.8, transition: 'opacity 0.2s' }}
+               onMouseOver={e => e.target.style.opacity = '1'}
+               onMouseOut={e => e.target.style.opacity = '0.8'}>Pricing</a>
             <button onClick={() => setShowAuth(true)} style={{ 
-              background: '#18181b', color: '#fff', padding: '0.625rem 1.25rem', borderRadius: '8px', 
-              border: 'none', fontSize: '0.875rem', fontWeight: '600', cursor: 'pointer'
-            }}>
+              background: '#007aff', color: '#fff', padding: '0.5rem 1.125rem', borderRadius: '980px', 
+              border: 'none', fontSize: '0.8125rem', fontWeight: '600', cursor: 'pointer',
+              transition: 'background 0.2s'
+            }}
+            onMouseOver={e => e.target.style.background = '#0071e3'}
+            onMouseOut={e => e.target.style.background = '#007aff'}
+            >
               Get started
             </button>
           </div>
-          <button onClick={() => setShowMobileNav(!showMobileNav)} className="mobile-menu-btn" style={{
-            background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', display: 'none'
-          }}>
-            ☰
-          </button>
         </div>
       </nav>
 
-      <section style={{ padding: '10rem 2rem 6rem', position: 'relative', background: 'linear-gradient(180deg, #fafafa 0%, #fff 50%, #fafafa 100%)' }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center', position: 'relative' }}>
-          <div style={{ 
-            animation: 'float 6s ease-in-out infinite',
-            marginBottom: '2rem'
-          }}>
-            <span style={{ 
-              display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', fontWeight: '600', 
-              color: '#6366f1', background: '#eeeffc', padding: '0.5rem 1rem', borderRadius: '24px',
-              border: '1px solid #c7d2fe'
-            }}>
-              <span style={{ width: '8px', height: '8px', background: '#6366f1', borderRadius: '50%', animation: 'pulse 2s infinite' }} />
-              AI-powered website builder
-            </span>
-          </div>
+      <section ref={heroRef} style={{ 
+        minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', 
+        justifyContent: 'center', padding: '7rem 5% 5rem', textAlign: 'center',
+        background: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0,122,255,0.15), transparent)',
+        position: 'relative', overflow: 'hidden'
+      }}>
+        {mounted && (
+          <div style={{
+            position: 'absolute', top: '20%', left: '10%', width: '300px', height: '300px',
+            background: 'radial-gradient(circle, rgba(102,126,234,0.1) 0%, transparent 70%)',
+            filter: 'blur(40px)', pointerEvents: 'none'
+          }} />
+        )}
+        {mounted && (
+          <div style={{
+            position: 'absolute', bottom: '10%', right: '15%', width: '250px', height: '250px',
+            background: 'radial-gradient(circle, rgba(118,75,162,0.1) 0%, transparent 70%)',
+            filter: 'blur(40px)', pointerEvents: 'none'
+          }} />
+        )}
+        
+        <div style={{ maxWidth: '900px', opacity: mounted ? 1 : 0, transform: `translateY(${mounted ? 0 : 20}px)`, transition: 'all 0.8s ease-out' }}>
+          <p style={{ fontSize: '1rem', color: '#007aff', marginBottom: '1rem', fontWeight: '500', letterSpacing: '0.02em' }}>Introducing</p>
           
           <h1 style={{ 
-            fontSize: 'clamp(2.75rem, 8vw, 4.5rem)', fontWeight: '800', lineHeight: 1.1, marginBottom: '1.5rem', 
-            letterSpacing: '-0.03em', animation: 'fadeInUp 0.8s ease'
+            fontSize: 'clamp(3rem, 10vw, 5.5rem)', fontWeight: '700', lineHeight: 1.0, 
+            marginBottom: '1.5rem', letterSpacing: '-0.035em'
           }}>
-            Build websites<br />
-            <span style={{ 
-              background: 'linear-gradient(135deg, #6366f1, #8b5cf6, #d946ef)',
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
-            }}>at the speed of thought.</span>
+            Build websites.<br />
+            <span style={{ background: 'linear-gradient(135deg, #86868b 0%, #6366f1 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Ship faster.</span>
           </h1>
           
           <p style={{ 
-            fontSize: '1.375rem', color: '#71717a', lineHeight: 1.6, marginBottom: '2.5rem', 
-            maxWidth: '560px', margin: '0 auto 2.5rem', animation: 'fadeInUp 0.8s ease 0.2s both'
+            fontSize: '1.375rem', color: '#86868b', lineHeight: 1.5, marginBottom: '2.5rem', 
+            maxWidth: '580px', margin: '0 auto 2.5rem', fontWeight: '400'
           }}>
-            Describe what you want. Watch it come to life. No code, no design skills, no compromise.
+            Describe what you want. Watch it come to life. No code required.
           </p>
 
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', animation: 'fadeInUp 0.8s ease 0.4s both' }}>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button onClick={() => setShowAuth(true)} style={{
-              padding: '1.125rem 2.25rem', fontSize: '1.0625rem', borderRadius: '12px',
-              background: '#18181b', border: 'none', color: '#fff',
-              fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-              transition: 'transform 0.2s, box-shadow 0.2s'
+              padding: '1rem 2rem', fontSize: '1.125rem', borderRadius: '980px',
+              background: '#007aff', border: 'none', color: '#fff',
+              fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s'
             }}
-            onMouseOver={e => { e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 8px 30px rgba(0,0,0,0.2)' }}
-            onMouseOut={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 4px 20px rgba(0,0,0,0.15)' }}
+            onMouseOver={e => { e.target.style.background = '#0071e3'; e.target.style.transform = 'scale(1.02)'; }}
+            onMouseOut={e => { e.target.style.background = '#007aff'; e.target.style.transform = 'scale(1)'; }}
             >
-              Start building free →
+              Start building free
             </button>
-            <button style={{
-              padding: '1.125rem 2.25rem', fontSize: '1.0625rem', borderRadius: '12px',
-              background: '#fff', border: '1px solid #e4e4e7', color: '#18181b',
-              fontWeight: '600', cursor: 'pointer'
-            }}>
-              Watch demo
-            </button>
+            <a href="#how" style={{
+              padding: '1rem 2rem', fontSize: '1.125rem', borderRadius: '980px',
+              background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)',
+              color: '#fff', fontWeight: '500', cursor: 'pointer', textDecoration: 'none', transition: 'all 0.2s'
+            }}
+            onMouseOver={e => { e.target.style.background = 'rgba(255,255,255,0.1)'; e.target.style.transform = 'scale(1.02)'; }}
+            onMouseOut={e => { e.target.style.background = 'rgba(255,255,255,0.05)'; e.target.style.transform = 'scale(1)'; }}
+            >
+              Learn more
+            </a>
           </div>
 
-          <p style={{ fontSize: '0.875rem', color: '#a1a1aa', marginTop: '1.5rem', animation: 'fadeIn 0.8s ease 0.6s both' }}>
-            Free to start. No credit card required. 10 generations included.
-          </p>
+          <p style={{ fontSize: '0.875rem', color: '#6e6e73', marginTop: '1.25rem' }}>10 free generations. No credit card required.</p>
         </div>
       </section>
 
-      <section style={{ padding: '4rem 2rem', background: '#fff' }}>
-        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+      <section style={{ padding: '5rem 5%', background: '#000' }}>
+        <div style={{ maxWidth: '1024px', margin: '0 auto' }}>
           <div style={{ 
-            background: 'linear-gradient(135deg, #18181b, #27272a)', borderRadius: '24px', padding: '3rem',
-            display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '2rem', alignItems: 'center',
-            animation: 'fadeInUp 0.8s ease'
+            background: '#0a0a0a', borderRadius: '24px', padding: '3rem',
+            border: '1px solid rgba(255,255,255,0.06)',
+            boxShadow: '0 0 80px rgba(0,0,0,0.3)'
           }}>
-            <div>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#fff', marginBottom: '0.75rem' }}>Try it now</h3>
-              <p style={{ color: '#a1a1aa', fontSize: '0.9375rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-                Type a description and watch the AI generate your website in real-time.
-              </p>
-              <div style={{ background: '#09090b', borderRadius: '12px', padding: '1.25rem', border: '1px solid #3f3f46' }}>
-                <p style={{ color: '#22c55e', fontSize: '0.875rem', fontFamily: 'monospace' }}>$ "Landing page for a coffee shop"</p>
-                <p style={{ color: '#6366f1', fontSize: '0.875rem', fontFamily: 'monospace', marginTop: '0.5rem' }}>→ Generating...</p>
-              </div>
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+              <p style={{ fontSize: '0.75rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Live Demo</p>
             </div>
-            <div style={{ background: '#fff', borderRadius: '16px', padding: '2rem', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
-              <h4 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.25rem' }}>Brew & Co.</h4>
-              <p style={{ color: '#71717a', fontSize: '0.875rem', marginBottom: '1.5rem' }}>Artisan coffee, roasted daily</p>
-              <div style={{ display: 'flex', gap: '1.5rem', paddingTop: '1rem', borderTop: '1px solid #e4e4e7' }}>
-                <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#71717a' }}>Menu</span>
-                <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#71717a' }}>About</span>
-                <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#71717a' }}>Contact</span>
+            <div style={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1.2fr' }, gap: '2rem', alignItems: 'center' }}>
+              <div>
+                <div style={{
+                  padding: '1.25rem', background: '#141414', borderRadius: '12px',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  fontFamily: 'SF Mono, Monaco, Menlo, monospace'
+                }}>
+                  <p style={{ fontSize: '0.875rem', color: '#d1d1d6', lineHeight: 1.7 }}>
+                    <span style={{ color: '#007aff' }}>"</span>Landing page for a coffee shop with hero, menu, and contact section<span style={{ color: '#007aff' }}>"</span>
+                  </p>
+                </div>
+              </div>
+              <div style={{ background: '#fff', borderRadius: '20px', padding: '2.5rem', color: '#1d1d1f', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+                <h3 style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Brew & Co.</h3>
+                <p style={{ fontSize: '0.9375rem', color: '#86868b', marginBottom: '2rem' }}>Artisan coffee, roasted daily</p>
+                <div style={{ display: 'flex', gap: '2rem', paddingTop: '1.25rem', borderTop: '1px solid #e5e5e5' }}>
+                  <span style={{ fontSize: '0.9375rem', fontWeight: '600', color: '#1d1d1f' }}>Menu</span>
+                  <span style={{ fontSize: '0.9375rem', fontWeight: '600', color: '#1d1d1f' }}>About</span>
+                  <span style={{ fontSize: '0.9375rem', fontWeight: '600', color: '#1d1d1f' }}>Contact</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="features" style={{ padding: '6rem 2rem', background: '#fafafa' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+      <section id="features" style={{ padding: '6rem 5%', background: '#0a0a0a' }}>
+        <div style={{ maxWidth: '1024px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '800', letterSpacing: '-0.02em', marginBottom: '1rem' }}>
-              Everything you need to ship faster
+            <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '700', letterSpacing: '-0.025em', marginBottom: '1rem' }}>
+              Why SiteForge?
             </h2>
-            <p style={{ color: '#71717a', fontSize: '1.125rem', maxWidth: '500px', margin: '0 auto' }}>
-              Powerful features to help you build and launch websites in record time.
+            <p style={{ color: '#86868b', fontSize: '1.125rem', maxWidth: '480px', margin: '0 auto' }}>
+              Everything you need to build and ship websites faster.
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1px', background: 'rgba(255,255,255,0.06)', borderRadius: '20px', overflow: 'hidden' }}>
             {[
-              { icon: '⚡', title: 'Lightning fast', desc: 'Generate complete websites in under 30 seconds. No more hours of coding from scratch.', color: '#fbbf24' },
-              { icon: '🎨', title: 'Beautiful design', desc: 'Every site is crafted with modern design principles. No ugly templates or clunky builders.', color: '#f472b6' },
-              { icon: '🔄', title: 'Iterate instantly', desc: 'Make changes with natural language. "Make the header bigger" just works.', color: '#6366f1' },
-              { icon: '📥', title: 'Own your code', desc: 'Download clean HTML/CSS/JS. Host anywhere you want. No lock-in.', color: '#22c55e' },
-              { icon: '🔒', title: 'Private & secure', desc: 'Your ideas stay yours. We never store or train on your projects.', color: '#8b5cf6' },
-              { icon: '🌐', title: 'Deploy anywhere', desc: 'The code works on any hosting platform. Vercel, Netlify, GitHub Pages, anywhere.', color: '#06b6d4' },
+              { icon: '⚡', title: 'Instant generation', desc: 'From idea to working website in under 30 seconds. No more hours of coding.' },
+              { icon: '✨', title: 'Beautiful by default', desc: 'Every site is crafted with modern design principles. No ugly templates.' },
+              { icon: '🔄', title: 'Iterate naturally', desc: 'Make changes with plain English. "Make the header bigger" just works.' },
+              { icon: '📦', title: 'Own your code', desc: 'Download clean HTML/CSS/JS. Host anywhere you want. No lock-in.' },
+              { icon: '🔒', title: 'Private by design', desc: 'Your ideas stay yours. We never store or train on your projects.' },
+              { icon: '🚀', title: 'Deploy anywhere', desc: 'The code works on any hosting platform. Vercel, Netlify, anywhere.' },
             ].map((f, i) => (
-              <div key={i} style={{
-                background: '#fff', borderRadius: '16px', padding: '2rem',
-                border: '1px solid #e4e4e7', boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
-                transition: 'transform 0.3s, box-shadow 0.3s',
-                animation: `fadeInUp 0.5s ease ${i * 0.1}s both`
-              }}
-              onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.08)' }}
-              onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.03)' }}
+              <div key={i} style={{ background: '#0a0a0a', padding: '2rem', transition: 'all 0.3s', cursor: 'default' }}
+              onMouseOver={e => { e.currentTarget.style.background = '#111'; e.currentTarget.style.paddingTop = '2.25rem'; }}
+              onMouseOut={e => { e.currentTarget.style.background = '#0a0a0a'; e.currentTarget.style.paddingTop = '2rem'; }}
               >
-                <div style={{ 
-                  width: '56px', height: '56px', borderRadius: '14px', 
-                  background: `${f.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '1.5rem', marginBottom: '1.25rem'
-                }}>
-                  {f.icon}
-                </div>
-                <h3 style={{ fontSize: '1.125rem', fontWeight: '700', marginBottom: '0.5rem' }}>{f.title}</h3>
-                <p style={{ fontSize: '0.9375rem', color: '#71717a', lineHeight: 1.6 }}>{f.desc}</p>
+                <div style={{ fontSize: '1.75rem', marginBottom: '1rem' }}>{f.icon}</div>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.625rem', letterSpacing: '-0.01em' }}>{f.title}</h3>
+                <p style={{ fontSize: '0.9375rem', color: '#86868b', lineHeight: 1.6 }}>{f.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="how" style={{ padding: '6rem 2rem', background: '#fff' }}>
-        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+      <section id="how" style={{ padding: '6rem 5%', background: '#000' }}>
+        <div style={{ maxWidth: '1024px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '800', letterSpacing: '-0.02em', marginBottom: '1rem' }}>
-              How it works
+            <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '700', letterSpacing: '-0.025em', marginBottom: '1rem' }}>
+              How it works.
             </h2>
-            <p style={{ color: '#71717a', fontSize: '1.125rem' }}>
-              From idea to launch in three simple steps.
+            <p style={{ color: '#86868b', fontSize: '1.125rem' }}>
+              From idea to launch in three steps.
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2.5rem' }}>
             {[
-              { num: '01', title: 'Describe your vision', desc: 'Tell us what you want in plain English. A landing page, portfolio, dashboard—anything you can imagine.' },
-              { num: '02', title: 'AI builds it instantly', desc: 'Our AI understands context, design principles, and best practices to ship production-ready code.' },
-              { num: '03', title: 'Download & launch', desc: 'Get the complete source code. Host anywhere, customize everything, ship when ready.' },
+              { num: '01', title: 'Describe it', desc: 'Tell us what you want in plain English. A landing page, portfolio, dashboard—anything.' },
+              { num: '02', title: 'AI builds it', desc: 'Our AI creates production-ready code tailored to your description.' },
+              { num: '03', title: 'Download & launch', desc: 'Get the complete source code. Host anywhere, customize everything.' },
             ].map((step, i) => (
-              <div key={i} style={{ 
-                textAlign: 'center', padding: '2rem',
-                animation: `fadeInUp 0.5s ease ${i * 0.15}s both`
-              }}>
+              <div key={i} style={{ textAlign: 'center' }}>
                 <div style={{ 
-                  width: '72px', height: '72px', borderRadius: '20px', 
-                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                  width: '72px', height: '72px', borderRadius: '22px',
+                  background: 'linear-gradient(135deg, #1c1c1e 0%, #2c2c2e 100%)', border: '1px solid rgba(255,255,255,0.08)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '1.5rem', fontWeight: '800', color: '#fff',
-                  margin: '0 auto 1.5rem', boxShadow: '0 8px 30px rgba(99, 102, 241, 0.3)'
+                  fontSize: '1.375rem', fontWeight: '700', color: '#86868b',
+                  margin: '0 auto 1.5rem', letterSpacing: '-0.02em',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
                 }}>
                   {step.num}
                 </div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '0.75rem' }}>{step.title}</h3>
-                <p style={{ fontSize: '1rem', color: '#71717a', lineHeight: 1.6 }}>{step.desc}</p>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.75rem' }}>{step.title}</h3>
+                <p style={{ fontSize: '1rem', color: '#86868b', lineHeight: 1.6 }}>{step.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section ref={statsRef} style={{ padding: '6rem 2rem', background: '#18181b', color: '#fff' }}>
-        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '3rem', textAlign: 'center' }}>
-            {[
-              { num: '10,000+', label: 'Websites generated' },
-              { num: '50+', label: 'Countries reached' },
-              { num: '4.9/5', label: 'User satisfaction' },
-              { num: '30s', label: 'Avg. generation time' },
-            ].map((stat, i) => (
-              <div key={i} style={{ 
-                opacity: statsVisible ? 1 : 0, 
-                transform: statsVisible ? 'translateY(0)' : 'translateY(20px)',
-                transition: `all 0.6s ease ${i * 0.1}s`
-              }}>
-                <div style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: '800', letterSpacing: '-0.02em', marginBottom: '0.5rem' }}>{stat.num}</div>
-                <div style={{ fontSize: '0.9375rem', color: '#a1a1aa' }}>{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="pricing" style={{ padding: '6rem 2rem', background: '#fafafa' }}>
-        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+      <section id="pricing" style={{ padding: '6rem 5%', background: '#0a0a0a' }}>
+        <div style={{ maxWidth: '1024px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '800', letterSpacing: '-0.02em', marginBottom: '1rem' }}>
-              Simple, transparent pricing
+            <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '700', letterSpacing: '-0.025em', marginBottom: '1rem' }}>
+              Choose your plan.
             </h2>
-            <p style={{ color: '#71717a', fontSize: '1.125rem' }}>
+            <p style={{ color: '#86868b', fontSize: '1.125rem' }}>
               Start free. Upgrade when you need more.
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
             <div style={{
-              background: '#fff', borderRadius: '20px', padding: '2rem',
-              border: '1px solid #e4e4e7', boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+              background: '#141414', borderRadius: '20px', padding: '2rem',
+              border: '1px solid rgba(255,255,255,0.08)',
+              transition: 'all 0.3s'
             }}>
-              <div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#71717a', marginBottom: '0.5rem' }}>Free</div>
-              <div style={{ fontSize: '3rem', fontWeight: '800', marginBottom: '1.5rem' }}>$0<span style={{ fontSize: '1rem', fontWeight: '400', color: '#a1a1aa' }}>/mo</span></div>
+              <div style={{ fontSize: '0.8125rem', color: '#86868b', marginBottom: '0.5rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Free</div>
+              <div style={{ fontSize: '3rem', fontWeight: '700', marginBottom: '1.5rem', letterSpacing: '-0.02em' }}>$0</div>
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem 0' }}>
-                {['10 generations/month', 'HTML download', 'Community support', 'Basic templates'].map(f => (
-                  <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontSize: '0.9375rem', color: '#52525b' }}>
-                    <span style={{ color: '#22c55e' }}>✓</span> {f}
+                {['10 generations/month', 'HTML download', 'Community support'].map(f => (
+                  <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.875rem', fontSize: '0.9375rem', color: '#d1d1d6' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34c759" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    {f}
                   </li>
                 ))}
               </ul>
               <button onClick={() => setShowAuth(true)} style={{
-                width: '100%', padding: '0.875rem', borderRadius: '10px',
-                background: '#fff', border: '1px solid #e4e4e7', color: '#18181b',
-                fontSize: '0.9375rem', fontWeight: '600', cursor: 'pointer'
+                width: '100%', padding: '0.875rem', borderRadius: '12px',
+                background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
+                color: '#fff', fontSize: '0.9375rem', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s'
               }}>
-                Get started free
+                Get started
               </button>
             </div>
 
             <div style={{
-              background: '#18181b', borderRadius: '20px', padding: '2rem', color: '#fff',
-              position: 'relative', boxShadow: '0 20px 50px rgba(0,0,0,0.15)'
+              background: '#1c1c1e', borderRadius: '20px', padding: '2rem',
+              border: '2px solid #007aff', position: 'relative',
+              boxShadow: '0 0 60px rgba(0,122,255,0.15)'
             }}>
               <div style={{ 
                 position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)',
-                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                padding: '0.375rem 1rem', borderRadius: '20px',
-                fontSize: '0.75rem', fontWeight: '700', color: '#fff'
+                background: '#007aff', padding: '0.375rem 1rem', borderRadius: '20px',
+                fontSize: '0.6875rem', fontWeight: '700', color: '#fff', letterSpacing: '0.03em'
               }}>
                 MOST POPULAR
               </div>
-              <div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#a1a1aa', marginBottom: '0.5rem' }}>Pro</div>
-              <div style={{ fontSize: '3rem', fontWeight: '800', marginBottom: '1.5rem' }}>$9<span style={{ fontSize: '1rem', fontWeight: '400', color: '#71717a' }}>/mo</span></div>
+              <div style={{ fontSize: '0.8125rem', color: '#86868b', marginBottom: '0.5rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Pro</div>
+              <div style={{ fontSize: '3rem', fontWeight: '700', marginBottom: '1.5rem', letterSpacing: '-0.02em' }}>$9<span style={{ fontSize: '1.25rem', fontWeight: '400', color: '#86868b' }}>/mo</span></div>
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem 0' }}>
-                {['100 generations/month', 'Priority support', 'Custom domains', 'No watermark', 'Advanced templates'].map(f => (
-                  <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontSize: '0.9375rem', color: '#d4d4d8' }}>
-                    <span style={{ color: '#22c55e' }}>✓</span> {f}
+                {['100 generations/month', 'Priority support', 'Custom domains', 'No watermark'].map(f => (
+                  <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.875rem', fontSize: '0.9375rem', color: '#d1d1d6' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34c759" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    {f}
                   </li>
                 ))}
               </ul>
               <a href="/app/billing" style={{
-                display: 'block', width: '100%', padding: '0.875rem', borderRadius: '10px',
-                background: '#fff', border: 'none', color: '#18181b',
-                fontSize: '0.9375rem', fontWeight: '600', cursor: 'pointer', textDecoration: 'none', textAlign: 'center'
+                display: 'block', width: '100%', padding: '0.875rem', borderRadius: '12px',
+                background: '#007aff', border: 'none',
+                color: '#fff', fontSize: '0.9375rem', fontWeight: '600', cursor: 'pointer', textDecoration: 'none', textAlign: 'center', transition: 'background 0.2s'
               }}>
                 Upgrade to Pro
               </a>
             </div>
 
             <div style={{
-              background: '#fff', borderRadius: '20px', padding: '2rem',
-              border: '1px solid #e4e4e7', boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+              background: '#141414', borderRadius: '20px', padding: '2rem',
+              border: '1px solid rgba(255,255,255,0.08)',
+              transition: 'all 0.3s'
             }}>
-              <div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#71717a', marginBottom: '0.5rem' }}>Unlimited</div>
-              <div style={{ fontSize: '3rem', fontWeight: '800', marginBottom: '1.5rem' }}>$29<span style={{ fontSize: '1rem', fontWeight: '400', color: '#a1a1aa' }}>/mo</span></div>
+              <div style={{ fontSize: '0.8125rem', color: '#86868b', marginBottom: '0.5rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Unlimited</div>
+              <div style={{ fontSize: '3rem', fontWeight: '700', marginBottom: '1.5rem', letterSpacing: '-0.02em' }}>$29<span style={{ fontSize: '1.25rem', fontWeight: '400', color: '#86868b' }}>/mo</span></div>
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem 0' }}>
-                {['Unlimited generations', '24/7 support', 'API access', 'White label', 'Custom integrations'].map(f => (
-                  <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontSize: '0.9375rem', color: '#52525b' }}>
-                    <span style={{ color: '#22c55e' }}>✓</span> {f}
+                {['Unlimited generations', '24/7 support', 'API access', 'White label'].map(f => (
+                  <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.875rem', fontSize: '0.9375rem', color: '#d1d1d6' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34c759" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    {f}
                   </li>
                 ))}
               </ul>
-              <button style={{
-                width: '100%', padding: '0.875rem', borderRadius: '10px',
-                background: '#fff', border: '1px solid #e4e4e7', color: '#18181b',
-                fontSize: '0.9375rem', fontWeight: '600', cursor: 'pointer'
+              <button disabled style={{
+                width: '100%', padding: '0.875rem', borderRadius: '12px',
+                background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
+                color: '#6e6e73', fontSize: '0.9375rem', fontWeight: '600', cursor: 'not-allowed'
               }}>
                 Coming soon
               </button>
@@ -442,72 +376,45 @@ export default function Landing() {
         </div>
       </section>
 
-      <section id="faq" style={{ padding: '6rem 2rem', background: '#fff' }}>
-        <div style={{ maxWidth: '700px', margin: '0 auto' }}>
-          <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '800', letterSpacing: '-0.02em', marginBottom: '3rem', textAlign: 'center' }}>
-            Frequently asked questions
+      <section style={{ padding: '7rem 5%', background: '#000', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+        <div style={{
+          position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+          width: '600px', height: '600px',
+          background: 'radial-gradient(circle, rgba(0,122,255,0.08) 0%, transparent 70%)',
+          filter: 'blur(60px)', pointerEvents: 'none'
+        }} />
+        <div style={{ maxWidth: '700px', margin: '0 auto', position: 'relative' }}>
+          <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.75rem)', fontWeight: '700', letterSpacing: '-0.025em', marginBottom: '1rem' }}>
+            Ready to build something?
           </h2>
-          {[
-            { q: 'What do I get with the free plan?', a: 'You get 10 website generations per month, unlimited downloads, and access to basic templates. No credit card required.' },
-            { q: 'Can I use the generated code commercially?', a: 'Yes! You own 100% of the code generated. Use it for personal projects, client work, or commercial products.' },
-            { q: 'What payment methods do you accept?', a: 'We accept all major credit cards, debit cards, and PayPal through our secure Stripe integration.' },
-            { q: 'Can I cancel my subscription anytime?', a: 'Absolutely. Cancel anytime from your dashboard. You\'ll keep access until the end of your billing period.' },
-            { q: 'Do you offer refunds?', a: 'Yes, we offer a 14-day money-back guarantee. No questions asked.' },
-          ].map((faq, i) => (
-            <div key={i} style={{ 
-              padding: '1.5rem 0', borderBottom: '1px solid #e4e4e7',
-              cursor: 'pointer'
-            }}>
-              <h3 style={{ fontSize: '1.0625rem', fontWeight: '700', marginBottom: '0.5rem' }}>{faq.q}</h3>
-              <p style={{ fontSize: '0.9375rem', color: '#71717a', lineHeight: 1.6 }}>{faq.a}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section style={{ padding: '6rem 2rem', background: '#18181b', color: '#fff' }}>
-        <div style={{ maxWidth: '700px', margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '800', marginBottom: '1rem' }}>
-            Ready to build something great?
-          </h2>
-          <p style={{ color: '#a1a1aa', fontSize: '1.125rem', marginBottom: '2.5rem' }}>
-            Join thousands of creators shipping faster with SiteForge.
+          <p style={{ color: '#86868b', fontSize: '1.125rem', marginBottom: '2.5rem' }}>
+            Join thousands of creators building faster with SiteForge.
           </p>
           <button onClick={() => setShowAuth(true)} style={{
-            padding: '1.125rem 2.5rem', fontSize: '1.125rem', borderRadius: '12px',
-            background: '#fff', border: 'none', color: '#18181b',
-            fontWeight: '700', cursor: 'pointer'
-          }}>
-            Start for free →
+            padding: '1rem 2.5rem', fontSize: '1.125rem', borderRadius: '980px',
+            background: '#007aff', border: 'none', color: '#fff',
+            fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s'
+          }}
+          onMouseOver={e => { e.target.style.background = '#0071e3'; e.target.style.transform = 'scale(1.02)'; }}
+          onMouseOut={e => { e.target.style.background = '#007aff'; e.target.style.transform = 'scale(1)'; }}
+          >
+            Start for free
           </button>
-          <p style={{ color: '#71717a', fontSize: '0.875rem', marginTop: '1.5rem' }}>Free to start. No credit card required.</p>
+          <p style={{ fontSize: '0.875rem', color: '#6e6e73', marginTop: '1.25rem' }}>Free to start. No credit card required.</p>
         </div>
       </section>
 
-      <footer style={{ padding: '3rem 2rem', background: '#fafafa', borderTop: '1px solid #e4e4e7' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <div style={{ fontWeight: '800', fontSize: '1.125rem' }}>SiteForge</div>
-          <div style={{ display: 'flex', gap: '2rem' }}>
-            <a href="#" style={{ color: '#71717a', textDecoration: 'none', fontSize: '0.875rem' }}>Terms</a>
-            <a href="#" style={{ color: '#71717a', textDecoration: 'none', fontSize: '0.875rem' }}>Privacy</a>
-            <a href="#" style={{ color: '#71717a', textDecoration: 'none', fontSize: '0.875rem' }}>Contact</a>
+      <footer style={{ padding: '2.5rem 5%', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ maxWidth: '1024px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ fontWeight: '600', fontSize: '0.9375rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#007aff" strokeWidth="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            SiteForge
           </div>
-          <p style={{ fontSize: '0.8125rem', color: '#a1a1aa' }}>© 2024 SiteForge. All rights reserved.</p>
+          <p style={{ fontSize: '0.75rem', color: '#6e6e73' }}>© 2024 SiteForge. All rights reserved.</p>
         </div>
       </footer>
-
-      <style>{`
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        
-        @media (max-width: 768px) {
-          .desktop-nav { display: none !important; }
-          .mobile-menu-btn { display: block !important; }
-        }
-      `}</style>
     </div>
   )
 }

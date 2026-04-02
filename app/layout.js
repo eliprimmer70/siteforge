@@ -1,12 +1,18 @@
+import './globals.css'
+
 export const metadata = {
-  title: 'AI Website Generator',
-  description: 'Generate websites with AI',
+  title: 'SiteForge - AI Website Generator',
+  description: 'Build websites faster with AI. Describe what you want, get production-ready code.',
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body style={{ margin: 0, fontFamily: 'system-ui, sans-serif' }}>{children}</body>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
+      <body>{children}</body>
     </html>
   )
 }
