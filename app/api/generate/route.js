@@ -7,7 +7,7 @@ export async function POST(request) {
   const apiToken = process.env.CLOUDFLARE_API_TOKEN
 
   if (!accountId || !apiToken) {
-    return NextResponse.json({ error: 'Cloudflare not configured. Add CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN.' }, { status: 500 })
+    return NextResponse.json({ error: 'Cloudflare not configured.' }, { status: 500 })
   }
 
   try {
@@ -21,27 +21,27 @@ export async function POST(request) {
         },
         body: JSON.stringify({
           messages: [
-            { role: 'system', content: 'You are a web developer. Return only HTML code.' },
+            { role: 'system', content: 'You are a web developer.' },
             { role: 'user', content: `HTML website for: ${prompt}` }
-          ],
-          max_tokens: 1024
+          ]
         })
       }
     )
 
+    const text = await res.text()
+
     if (!res.ok) {
-      const errorText = await res.text()
-      return NextResponse.json({ error: `Cloudflare error ${res.status}: ${errorText}` }, { status: 500 })
+      return NextResponse.json({ error: `API error ${res.status}: ${text}` }, { status: 500 })
     }
 
-    const data = await res.json()
+    const data = JSON.parse(text)
 
-    if (data.errors) {
-      return NextResponse.json({ error: `Cloudflare: ${data.errors[0]?.message}` }, { status: 500 })
+    if (data.errors && data.errors.length > 0) {
+      return NextResponse.json({ error: `Cloudflare error: ${JSON.stringify(data.errors)}` }, { status: 500 })
     }
 
     if (!data.result?.response) {
-      return NextResponse.json({ error: 'Empty response from AI.' }, { status: 500 })
+      return NextResponse.json({ error: `No response. Raw: ${text.substring(0, 500)}` }, { status: 500 })
     }
 
     let code = data.result.response
