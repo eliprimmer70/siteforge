@@ -10,30 +10,37 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Cloudflare not configured.' }, { status: 500 })
   }
 
-  const systemPrompt = `You are an expert web developer. Create a stunning, fully-functional single-page website.
+  const systemPrompt = `You are an expert full-stack web developer. Your job is to build EXACTLY what the user asks for.
 
-CONTEXT: ${prompt}
+USER REQUEST: "${prompt}"
 
-REQUIREMENTS:
-1. Professional design with modern UI
-2. Use Tailwind CSS via CDN: <script src="https://cdn.tailwindcss.com"></script>
-3. Use realistic stock images from picsum.photos (e.g., https://picsum.photos/800/600)
-4. Include all these sections:
-   - Navigation bar with logo and menu links
-   - Hero section with large headline, subtext, and CTA button
-   - Features/services section with icons and descriptions
-   - About section with image and text
-   - Testimonials from realistic customers
-   - Gallery or portfolio section
-   - Contact form section
-   - Footer with links
+CRITICAL INSTRUCTIONS:
+1. Follow the user's request EXACTLY - every detail matters
+2. If they ask for a landing page, build a landing page
+3. If they ask for an e-commerce site, include products, cart, checkout
+4. If they ask for a dashboard, build charts, tables, filters
+5. If they ask for a portfolio, build portfolio-specific sections
+6. Include realistic content, images, and data as specified
 
-5. Use a cohesive color scheme
-6. Make it mobile responsive
-7. Include hover animations and transitions
-8. Use icons from a CDN like Lucide or Heroicons via unpkg
+TECHNICAL REQUIREMENTS:
+- Use Tailwind CSS via CDN: <script src="https://cdn.tailwindcss.com"></script>
+- Use realistic images from picsum.photos
+- Use icons from Lucide: <script src="https://unpkg.com/lucide@latest"></script>
+- Make it fully responsive (mobile, tablet, desktop)
+- Add smooth animations and hover effects
+- Include all interactive elements (buttons work, forms look functional)
+- Use a cohesive, modern color scheme
 
-Return ONLY the raw HTML code with all CSS inline. No markdown, no explanations, no code blocks. Just pure HTML.`
+SECTIONS TO INCLUDE (when relevant to the request):
+- Navigation with working menu
+- Hero section matching the request
+- Features/Services/Products section
+- About/Team section
+- Testimonials
+- Contact/CTA section
+- Footer
+
+Return ONLY the raw HTML code with all CSS inline. No markdown, no explanations, no code blocks. Just pure, complete HTML that works immediately.`
 
   try {
     const res = await fetch(
@@ -46,8 +53,8 @@ Return ONLY the raw HTML code with all CSS inline. No markdown, no explanations,
         },
         body: JSON.stringify({
           messages: [
-            { role: 'system', content: 'You are a world-class web developer. Create stunning, production-ready websites.' },
-            { role: 'user', content: systemPrompt }
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: `Build exactly this: ${prompt}. Make it complete, functional, and beautiful.` }
           ]
         })
       }
@@ -66,7 +73,7 @@ Return ONLY the raw HTML code with all CSS inline. No markdown, no explanations,
     }
 
     if (!data.result?.response) {
-      return NextResponse.json({ error: 'No response from AI.' }, { status: 500 })
+      return NextResponse.json({ error: 'No response from AI. Try again.' }, { status: 500 })
     }
 
     let code = data.result.response
@@ -75,8 +82,6 @@ Return ONLY the raw HTML code with all CSS inline. No markdown, no explanations,
     code = code.replace(/```html/g, '')
     code = code.replace(/```\n?/g, '')
     code = code.replace(/```HTML\n?/g, '')
-    code = code.replace(/<html>/g, '<html>')
-    code = code.replace(/<HTML>/g, '<html>')
     code = code.trim()
 
     if (!code || code.length < 200) {
@@ -84,7 +89,7 @@ Return ONLY the raw HTML code with all CSS inline. No markdown, no explanations,
     }
 
     if (!code.includes('<html') && !code.includes('<!DOCTYPE')) {
-      code = `<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<script src="https://cdn.tailwindcss.com"></script>\n</head>\n<body>\n${code}\n</body>\n</html>`
+      code = `<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>Generated Website</title>\n<script src="https://cdn.tailwindcss.com"></script>\n<script src="https://unpkg.com/lucide@latest"></script>\n</head>\n<body>\n${code}\n</body>\n</html>`
     }
 
     return NextResponse.json({ code, success: true })
