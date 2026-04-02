@@ -8,7 +8,6 @@ const FREE_GENERATIONS = 10
 export default function AppLayout({ children }) {
   const router = useRouter()
   const pathname = usePathname()
-  const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
   const [remaining, setRemaining] = useState(FREE_GENERATIONS)
@@ -24,10 +23,9 @@ export default function AppLayout({ children }) {
     const storedUser = localStorage.getItem('siteforge_user')
     const storedRemaining = localStorage.getItem('siteforge_remaining')
     
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
-    } else {
+    if (!storedUser) {
       router.push('/')
+      return
     }
     
     if (storedRemaining) {
@@ -41,8 +39,8 @@ export default function AppLayout({ children }) {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: '24px', height: '24px', border: '2px solid #333', borderTop: '2px solid #0071e3', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+      <div style={{ minHeight: '100vh', background: '#fafafa', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '24px', height: '24px', border: '2px solid #d2d2d7', borderTop: '2px solid #0071e3', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
       </div>
     )
   }
@@ -51,23 +49,23 @@ export default function AppLayout({ children }) {
     return (
       <div style={{ 
         minHeight: '100vh', 
-        background: '#000', 
+        background: '#fafafa', 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
         padding: '2rem'
       }}>
         <div style={{ 
-          background: '#1a1a1a', 
+          background: '#fff', 
           borderRadius: '20px', 
           padding: '2.5rem', 
           textAlign: 'center',
           maxWidth: '360px',
-          border: '1px solid rgba(255,255,255,0.1)'
+          boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
         }}>
           <div style={{ fontSize: '3.5rem', marginBottom: '1.5rem' }}>💻</div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.75rem' }}>Desktop Required</h1>
-          <p style={{ color: '#86868b', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+          <h1 style={{ fontSize: '1.375rem', fontWeight: '600', marginBottom: '0.75rem', color: '#1d1d1f' }}>Desktop Required</h1>
+          <p style={{ color: '#86868b', lineHeight: 1.6, marginBottom: '1.5rem', fontSize: '0.9375rem' }}>
             SiteForge works best on a desktop. Please visit us on a PC.
           </p>
           <button 
@@ -79,7 +77,8 @@ export default function AppLayout({ children }) {
               border: 'none',
               color: '#fff',
               fontWeight: '500',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              fontSize: '0.9375rem'
             }}
           >
             Back to Homepage
@@ -90,10 +89,10 @@ export default function AppLayout({ children }) {
   }
 
   const navItems = [
-    { href: '/app', icon: '🏠', label: 'Create' },
-    { href: '/app/projects', icon: '📁', label: 'Projects' },
-    { href: '/app/settings', icon: '⚙️', label: 'Settings' },
-    { href: '/app/billing', icon: '💳', label: 'Billing' },
+    { href: '/app', label: 'Create' },
+    { href: '/app/projects', label: 'Projects' },
+    { href: '/app/settings', label: 'Settings' },
+    { href: '/app/billing', label: 'Billing' },
   ]
 
   const isActive = (href) => {
@@ -108,11 +107,11 @@ export default function AppLayout({ children }) {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#000', color: '#fff', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", Helvetica, Arial, sans-serif' }}>
-      <aside style={{ width: '220px', background: '#0a0a0a', borderRight: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', position: 'fixed', height: '100vh' }}>
-        <div style={{ padding: '1.25rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-          <div style={{ fontWeight: '600', fontSize: '1rem', letterSpacing: '-0.01em' }}>SiteForge</div>
-          <div style={{ fontSize: '0.6875rem', color: '#6e6e73', marginTop: '0.125rem' }}>Dashboard</div>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#fafafa', color: '#1d1d1f', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", Helvetica, Arial, sans-serif' }}>
+      <aside style={{ width: '220px', background: '#fff', borderRight: '1px solid #d2d2d7', display: 'flex', flexDirection: 'column', position: 'fixed', height: '100vh' }}>
+        <div style={{ padding: '1.25rem', borderBottom: '1px solid #d2d2d7' }}>
+          <div style={{ fontWeight: '600', fontSize: '1rem', letterSpacing: '-0.01em', color: '#1d1d1f' }}>SiteForge</div>
+          <div style={{ fontSize: '0.6875rem', color: '#86868b', marginTop: '0.125rem' }}>Dashboard</div>
         </div>
 
         <nav style={{ padding: '1rem 0.75rem', flex: 1 }}>
@@ -123,31 +122,31 @@ export default function AppLayout({ children }) {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.75rem',
-                padding: '0.625rem 0.875rem',
+                justifyContent: 'center',
+                padding: '0.625rem',
                 borderRadius: '8px',
                 textDecoration: 'none',
-                color: isActive(item.href) ? '#fff' : '#86868b',
-                background: isActive(item.href) ? 'rgba(0,113,227,0.15)' : 'transparent',
+                color: isActive(item.href) ? '#0071e3' : '#86868b',
+                background: isActive(item.href) ? 'rgba(0,113,227,0.08)' : 'transparent',
                 marginBottom: '0.25rem',
                 fontSize: '0.8125rem',
+                fontWeight: isActive(item.href) ? '600' : '400',
                 transition: 'all 0.2s'
               }}
             >
-              <span style={{ fontSize: '1rem' }}>{item.icon}</span>
               {item.label}
             </a>
           ))}
         </nav>
 
-        <div style={{ padding: '1rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-          <div style={{ background: '#000', borderRadius: '10px', padding: '0.875rem', marginBottom: '0.75rem' }}>
+        <div style={{ padding: '1rem', borderTop: '1px solid #d2d2d7' }}>
+          <div style={{ background: '#f5f5f7', borderRadius: '10px', padding: '0.875rem', marginBottom: '0.75rem' }}>
             <div style={{ fontSize: '0.625rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.375rem' }}>Free Trial</div>
-            <div style={{ fontSize: '1.375rem', fontWeight: '600' }}>
+            <div style={{ fontSize: '1.375rem', fontWeight: '600', color: '#1d1d1f' }}>
               {remaining}
-              <span style={{ fontSize: '0.8125rem', fontWeight: '400', color: '#6e6e73' }}> / {FREE_GENERATIONS}</span>
+              <span style={{ fontSize: '0.8125rem', fontWeight: '400', color: '#86868b' }}> / {FREE_GENERATIONS}</span>
             </div>
-            <div style={{ height: '3px', background: '#333', borderRadius: '2px', marginTop: '0.5rem', overflow: 'hidden' }}>
+            <div style={{ height: '3px', background: '#d2d2d7', borderRadius: '2px', marginTop: '0.5rem', overflow: 'hidden' }}>
               <div style={{ width: `${(remaining / FREE_GENERATIONS) * 100}%`, height: '100%', background: '#0071e3', borderRadius: '2px' }} />
             </div>
           </div>
@@ -157,7 +156,7 @@ export default function AppLayout({ children }) {
               width: '100%',
               padding: '0.625rem',
               background: 'transparent',
-              border: '1px solid rgba(255,255,255,0.1)',
+              border: '1px solid #d2d2d7',
               borderRadius: '8px',
               color: '#86868b',
               fontSize: '0.75rem',

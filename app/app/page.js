@@ -16,6 +16,13 @@ export default function AppPage() {
 
   useEffect(() => {
     const storedRemaining = localStorage.getItem('siteforge_remaining')
+    const storedUser = localStorage.getItem('siteforge_user')
+    
+    if (!storedUser) {
+      window.location.href = '/'
+      return
+    }
+    
     if (storedRemaining) {
       const r = parseInt(storedRemaining)
       setRemaining(r)
@@ -49,20 +56,13 @@ export default function AppPage() {
       
       const data = await res.json()
       
-      if (data.error || data.requiresAuth) {
-        window.location.href = '/'
-        return
-      }
-      
-      if (data.limitReached) {
-        setLimitReached(true)
-        setMessages(prev => [...prev, { role: 'assistant', text: 'Free trial ended! You\'ve used all 10 generations.' }])
-        return
-      }
-      
       if (data.error) {
         setMessages(prev => [...prev, { role: 'assistant', text: data.error }])
-      } else {
+        setLoading(false)
+        return
+      }
+      
+      if (data.code) {
         setMessages(prev => [...prev, { role: 'assistant', text: 'Your website is ready!' }])
         setCurrentCode(data.code)
         setHistory(prev => [...prev, { role: 'user', text: currentPrompt }, { role: 'assistant', text: data.code }])
@@ -99,27 +99,28 @@ export default function AppPage() {
   }
 
   return (
-    <div style={{ display: 'flex', height: '100vh', background: '#050505', color: '#fff', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", Helvetica, Arial, sans-serif' }}>
+    <div style={{ display: 'flex', height: '100vh', background: '#fafafa', color: '#1d1d1f', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Helvetica, Arial, sans-serif' }}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #d2d2d7', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff' }}>
           <div>
-            <h1 style={{ fontSize: '1.375rem', fontWeight: '600', marginBottom: '0.125rem' }}>Create</h1>
+            <h1 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.125rem', color: '#1d1d1f' }}>Create</h1>
             <p style={{ fontSize: '0.75rem', color: '#86868b' }}>Describe what you want to build</p>
           </div>
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.75rem', color: '#86868b', background: '#0a0a0a', padding: '0.5rem 0.875rem', borderRadius: '8px' }}>
+            <span style={{ fontSize: '0.75rem', color: '#86868b', background: '#f5f5f7', padding: '0.5rem 0.875rem', borderRadius: '8px' }}>
               {remaining} / {FREE_GENERATIONS} left
             </span>
             <button
               onClick={startNew}
               style={{
                 padding: '0.5rem 1rem',
-                background: 'transparent',
-                border: '1px solid rgba(255,255,255,0.15)',
+                background: '#fff',
+                border: '1px solid #d2d2d7',
                 borderRadius: '8px',
-                color: '#fff',
+                color: '#1d1d1f',
                 cursor: 'pointer',
-                fontSize: '0.8125rem'
+                fontSize: '0.8125rem',
+                fontWeight: '500'
               }}
             >
               New
@@ -129,7 +130,7 @@ export default function AppPage() {
 
         {currentCode ? (
           <>
-            <div style={{ padding: '0.625rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', gap: '0.375rem', alignItems: 'center', background: '#0a0a0a' }}>
+            <div style={{ padding: '0.5rem 1rem', borderBottom: '1px solid #d2d2d7', display: 'flex', gap: '0.375rem', alignItems: 'center', background: '#fff' }}>
               {['preview', 'code', 'split'].map(v => (
                 <button
                   key={v}
@@ -180,11 +181,11 @@ export default function AppPage() {
               {(view === 'code' || view === 'split') && (
                 <div style={{ 
                   flex: 1, 
-                  background: '#0d0d0d', 
+                  background: '#1d1d1f', 
                   overflow: 'auto',
-                  borderLeft: view === 'split' ? '1px solid rgba(255,255,255,0.08)' : 'none',
+                  borderLeft: view === 'split' ? '1px solid #d2d2d7' : 'none',
                   padding: '1rem',
-                  fontFamily: 'SF Mono, Monaco, monospace',
+                  fontFamily: '"SF Mono", Monaco, Menlo, monospace',
                   fontSize: '0.75rem',
                   whiteSpace: 'pre-wrap',
                   color: '#a5b4fc',
@@ -206,8 +207,9 @@ export default function AppPage() {
                   <div style={{
                     display: 'inline-block',
                     padding: '0.625rem 0.875rem',
-                    borderRadius: msg.role === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-                    background: msg.role === 'user' ? 'linear-gradient(135deg, #bf5af2, #5e5ce6)' : '#1a1a1a',
+                    borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                    background: msg.role === 'user' ? '#0071e3' : '#f5f5f7',
+                    color: msg.role === 'user' ? '#fff' : '#1d1d1f',
                     fontSize: '0.875rem',
                     maxWidth: '65%',
                     wordBreak: 'break-word'
@@ -221,7 +223,7 @@ export default function AppPage() {
                   <div style={{
                     width: '18px',
                     height: '18px',
-                    border: '2px solid #333',
+                    border: '2px solid #d2d2d7',
                     borderTop: '2px solid #0071e3',
                     borderRadius: '50%',
                     animation: 'spin 0.8s linear infinite'
@@ -231,10 +233,10 @@ export default function AppPage() {
               )}
             </div>
 
-            <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid rgba(255,255,255,0.08)', background: '#0a0a0a' }}>
+            <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid #d2d2d7', background: '#fff' }}>
               {limitReached && (
-                <div style={{ background: '#1a1a1a', borderRadius: '10px', padding: '0.875rem', marginBottom: '0.75rem', textAlign: 'center' }}>
-                  <p style={{ color: '#ff453a', fontSize: '0.8125rem', marginBottom: '0.5rem' }}>Free trial ended</p>
+                <div style={{ background: '#f5f5f7', borderRadius: '10px', padding: '0.875rem', marginBottom: '0.75rem', textAlign: 'center' }}>
+                  <p style={{ color: '#ff3b30', fontSize: '0.8125rem', marginBottom: '0.5rem' }}>Free trial ended</p>
                   <a href="/app/billing" style={{
                     display: 'inline-block',
                     padding: '0.5rem 1rem',
@@ -247,7 +249,7 @@ export default function AppPage() {
                   }}>Upgrade for more</a>
                 </div>
               )}
-              <div style={{ display: 'flex', gap: '0.5rem', background: '#000', borderRadius: '12px', padding: '0.375rem', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', background: '#f5f5f7', borderRadius: '12px', padding: '0.375rem', border: '1px solid #d2d2d7' }}>
                 <input
                   type="text"
                   value={prompt}
@@ -261,7 +263,7 @@ export default function AppPage() {
                     background: 'transparent',
                     border: 'none',
                     borderRadius: '10px',
-                    color: '#fff',
+                    color: '#1d1d1f',
                     fontSize: '0.9375rem',
                     outline: 'none',
                   }}
@@ -271,7 +273,7 @@ export default function AppPage() {
                   disabled={loading || !prompt.trim() || limitReached}
                   style={{
                     padding: '0.75rem 1.25rem',
-                    background: prompt.trim() && !limitReached ? '#0071e3' : '#333',
+                    background: prompt.trim() && !limitReached ? '#0071e3' : '#d2d2d7',
                     border: 'none',
                     borderRadius: '10px',
                     color: '#fff',
